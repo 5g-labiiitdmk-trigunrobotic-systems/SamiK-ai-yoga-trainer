@@ -1,0 +1,1817 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard – Trigun Robotics Yoga</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4a6fa5;
+            --secondary: #166088;
+            --accent: #4fc3f7;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --error: #f44336;
+            --dark: #0d1b2a;
+            --card-bg: #ffffff;
+            --page-bg: #f0f4f8;
+            --text: #212529;
+            --muted: #6c757d;
+            --border: #e2e8f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--page-bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* ── Sidebar ─────────────────────────────────────────────────────── */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 240px;
+            height: 100vh;
+            background: linear-gradient(180deg, #0d1b2a 0%, #0f3460 100%);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+            transition: transform 0.3s;
+        }
+
+        .sidebar-brand {
+            padding: 24px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .sidebar-brand .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 4px;
+        }
+
+        .sidebar-brand .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--accent), var(--primary));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+
+        .sidebar-brand h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.6rem;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .sidebar-brand p {
+            font-size: 0.68rem;
+            opacity: 0.5;
+            margin-left: 0;
+            margin-top: 6px;
+            line-height: 1.4;
+        }
+
+        .nav-section {
+            padding: 20px 12px;
+            flex: 1;
+        }
+
+        .nav-label {
+            font-size: 0.65rem;
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            opacity: 0.4;
+            padding: 0 10px;
+            margin-bottom: 8px;
+            margin-top: 16px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.88rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            opacity: 0.7;
+            margin-bottom: 2px;
+            text-decoration: none;
+            color: white;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            opacity: 0.9;
+        }
+
+        .nav-item.active {
+            background: rgba(79, 195, 247, 0.15);
+            opacity: 1;
+            color: var(--accent);
+        }
+
+        .nav-item i {
+            width: 18px;
+            text-align: center;
+        }
+
+        .sidebar-footer {
+            padding: 16px 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .admin-badge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .admin-avatar {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--accent), var(--primary));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .admin-info h4 {
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .admin-info span {
+            font-size: 0.72rem;
+            opacity: 0.5;
+        }
+
+        /* ── Main content ────────────────────────────────────────────────── */
+        .main {
+            margin-left: 240px;
+            padding: 28px;
+            min-height: 100vh;
+        }
+
+        /* ── Top bar ──────────────────────────────────────────────────────── */
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 28px;
+        }
+
+        .topbar h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .topbar p {
+            font-size: 0.85rem;
+            color: var(--muted);
+            margin-top: 2px;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .refresh-btn {
+            padding: 9px 16px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .refresh-btn:hover {
+            background: var(--secondary);
+            transform: translateY(-1px);
+        }
+
+        .back-btn {
+            padding: 9px 16px;
+            background: white;
+            color: var(--primary);
+            border: 1.5px solid var(--primary);
+            border-radius: 10px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+        }
+
+        .back-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* ── Stats grid ──────────────────────────────────────────────────── */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+            border: 1px solid var(--border);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+
+        .stat-icon.blue {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+
+        .stat-icon.green {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .stat-icon.orange {
+            background: #fff3e0;
+            color: #e65100;
+        }
+
+        .stat-icon.purple {
+            background: #f3e5f5;
+            color: #6a1b9a;
+        }
+
+        .stat-icon.teal {
+            background: #e0f7fa;
+            color: #006064;
+        }
+
+        .stat-info h3 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.9rem;
+            font-weight: 700;
+            color: var(--dark);
+            line-height: 1;
+        }
+
+        .stat-info p {
+            font-size: 0.8rem;
+            color: var(--muted);
+            margin-top: 4px;
+        }
+
+        /* ── Section cards ───────────────────────────────────────────────── */
+        .section-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+            border: 1px solid var(--border);
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 22px;
+            border-bottom: 1px solid var(--border);
+            background: #fafbfc;
+        }
+
+        .section-header h3 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-header h3 i {
+            color: var(--primary);
+        }
+
+        .count-badge {
+            background: var(--primary);
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 2px 10px;
+            border-radius: 20px;
+        }
+
+
+        /* ── Search & filter bar ─────────────────────────────────────────── */
+        .filter-bar {
+            padding: 14px 22px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #f4f6f9;
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            padding: 8px 12px;
+            flex: 1;
+            min-width: 180px;
+        }
+
+        .search-box i {
+            color: var(--muted);
+        }
+
+        .search-box input {
+            border: none;
+            background: none;
+            outline: none;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.88rem;
+            width: 100%;
+            color: var(--text);
+        }
+
+        .filter-select {
+            padding: 8px 12px;
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.85rem;
+            background: white;
+            color: var(--text);
+            cursor: pointer;
+            outline: none;
+        }
+
+        /* ── Table ───────────────────────────────────────────────────────── */
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead tr {
+            background: #f8f9fa;
+        }
+
+        thead th {
+            padding: 12px 16px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--muted);
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        tbody tr {
+            border-top: 1px solid var(--border);
+            transition: background 0.15s;
+        }
+
+        tbody tr:hover {
+            background: #f8f9ff;
+        }
+
+        tbody td {
+            padding: 13px 16px;
+            font-size: 0.875rem;
+            vertical-align: middle;
+        }
+
+        .user-cell {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--primary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 0.875rem;
+        }
+
+        .user-email {
+            font-size: 0.75rem;
+            color: var(--muted);
+        }
+
+        /* Accuracy bar */
+        .acc-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .acc-bar {
+            flex: 1;
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+            min-width: 60px;
+        }
+
+        .acc-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.6s ease;
+        }
+
+        .acc-num {
+            font-size: 0.82rem;
+            font-weight: 600;
+            min-width: 36px;
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.72rem;
+            font-weight: 600;
+        }
+
+        .badge-beginner {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .badge-intermediate {
+            background: #fff8e1;
+            color: #f57f17;
+        }
+
+        .badge-advanced {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .badge-active {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+
+        .badge-inactive {
+            background: #fafafa;
+            color: #999;
+            border: 1px solid #ddd;
+        }
+
+        /* Action buttons */
+        .action-btn {
+            padding: 5px 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.78rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .view-btn {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+
+        .view-btn:hover {
+            background: #1565c0;
+            color: white;
+        }
+
+        .delete-btn {
+            background: #ffebee;
+            color: #c62828;
+            margin-left: 4px;
+        }
+
+        .delete-btn:hover {
+            background: #c62828;
+            color: white;
+        }
+
+        /* ── Performance chart section ───────────────────────────────────── */
+        .chart-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 900px) {
+            .chart-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .mini-chart {
+            padding: 20px;
+        }
+
+        .bar-chart {
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            height: 120px;
+            margin-top: 12px;
+        }
+
+        .bar-col {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            gap: 4px;
+        }
+
+        .bar {
+            width: 100%;
+            border-radius: 6px 6px 0 0;
+            transition: height 0.6s ease;
+            cursor: pointer;
+            min-height: 4px;
+        }
+
+        .bar:hover {
+            filter: brightness(1.1);
+        }
+
+        .bar-label {
+            font-size: 0.65rem;
+            color: var(--muted);
+            text-align: center;
+        }
+
+        .bar-val {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        /* Donut chart via conic-gradient */
+        .donut-wrap {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            padding: 12px 0;
+        }
+
+        .donut {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .donut-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .donut-center h3 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .donut-center p {
+            font-size: 0.65rem;
+            color: var(--muted);
+        }
+
+        .donut-inner {
+            position: absolute;
+            top: 14px;
+            left: 14px;
+            right: 14px;
+            bottom: 14px;
+            background: white;
+            border-radius: 50%;
+        }
+
+        .legend-list {
+            flex: 1;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            font-size: 0.8rem;
+        }
+
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        /* ── Empty state ─────────────────────────────────────────────────── */
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: var(--muted);
+        }
+
+        .empty-state i {
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+            display: block;
+            opacity: 0.4;
+        }
+
+        .empty-state p {
+            font-size: 0.9rem;
+        }
+
+        /* ── Modal ───────────────────────────────────────────────────────── */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.45);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal-box {
+            background: white;
+            border-radius: 18px;
+            width: 90%;
+            max-width: 520px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            animation: popIn 0.3s ease;
+        }
+
+        @keyframes popIn {
+            from {
+                opacity: 0;
+                transform: scale(0.94)
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1)
+            }
+        }
+
+        .modal-head {
+            background: linear-gradient(to right, var(--secondary), var(--primary));
+            color: white;
+            padding: 18px 22px;
+            border-radius: 18px 18px 0 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-head h3 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .modal-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-body {
+            padding: 22px;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.875rem;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-row .label {
+            color: var(--muted);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .detail-row .value {
+            font-weight: 600;
+            color: var(--dark);
+            text-align: right;
+        }
+
+        .perf-sessions {
+            margin-top: 16px;
+        }
+
+        .perf-session-item {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 10px 14px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid var(--primary);
+        }
+
+        .perf-session-item.high {
+            border-color: var(--success);
+        }
+
+        .perf-session-item.mid {
+            border-color: var(--warning);
+        }
+
+        .perf-session-item.low {
+            border-color: var(--error);
+        }
+
+        .session-score {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        .session-score.high {
+            color: var(--success);
+        }
+
+        .session-score.mid {
+            color: var(--warning);
+        }
+
+        .session-score.low {
+            color: var(--error);
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main {
+                margin-left: 0;
+            }
+        }
+
+        /* ── Admin Password Gate ───────────────────────────────────────── */
+        #adminGate {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, #0d1b2a 0%, #0f3460 60%, #16213e 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 99999;
+        }
+
+        #adminGate.hidden {
+            display: none;
+        }
+
+        .gate-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px 36px;
+            max-width: 380px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+        }
+
+        .gate-icon {
+            width: 68px;
+            height: 68px;
+            background: linear-gradient(135deg, #4fc3f7, #4a6fa5);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin: 0 auto 18px;
+        }
+
+        .gate-card h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #0d1b2a;
+            margin-bottom: 6px;
+        }
+
+        .gate-card p {
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin-bottom: 24px;
+        }
+
+        .gate-card input[type=password] {
+            width: 100%;
+            padding: 13px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-family: 'Poppins', sans-serif;
+            outline: none;
+            margin-bottom: 8px;
+            transition: border-color 0.2s;
+        }
+
+        .gate-card input[type=password]:focus {
+            border-color: #4a6fa5;
+        }
+
+        .gate-card input.wrong {
+            border-color: #f44336;
+            animation: gateShake 0.4s ease;
+        }
+
+        @keyframes gateShake {
+
+            0%,
+            100% {
+                transform: translateX(0)
+            }
+
+            20% {
+                transform: translateX(-8px)
+            }
+
+            40% {
+                transform: translateX(8px)
+            }
+
+            60% {
+                transform: translateX(-5px)
+            }
+
+            80% {
+                transform: translateX(5px)
+            }
+        }
+
+        .gate-err {
+            color: #f44336;
+            font-size: 0.82rem;
+            margin-bottom: 14px;
+            display: none;
+        }
+
+        .gate-btn {
+            width: 100%;
+            padding: 13px;
+            background: linear-gradient(135deg, #166088, #4a6fa5);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            font-family: 'Poppins', sans-serif;
+            cursor: pointer;
+            margin-bottom: 14px;
+            transition: opacity 0.2s;
+        }
+
+        .gate-btn:hover {
+            opacity: 0.9;
+        }
+
+        .gate-back {
+            font-size: 0.82rem;
+            color: #6c757d;
+            cursor: pointer;
+        }
+
+        .gate-back:hover {
+            color: #4a6fa5;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ── Admin Password Gate (replaces broken prompt()) ─────────────────────── -->
+    <div id="adminGate">
+        <div class="gate-card">
+            <div class="gate-icon">🔒</div>
+            <h2>Admin Login</h2>
+            <p>Enter the admin password to access the dashboard</p>
+            <input type="password" id="gateInput" placeholder="Enter password"
+                onkeydown="if(event.key==='Enter') checkGate()">
+            <div class="gate-err" id="gateErr">❌ Wrong password. Please try again.</div>
+            <button class="gate-btn" onclick="checkGate()">
+                🔓 Enter Dashboard
+            </button>
+            <div class="gate-back" onclick="window.location.href='login.html'">
+                ← Back to Login Page
+            </div>
+        </div>
+    </div>
+
+        <!-- ── Sidebar ────────────────────────────────────────────────────────────── -->
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+        <h1>SamiK</h1>
+        <p>A Product of Trigun Robotics Private Limited, Kurnool</p>
+    </div>
+        <nav class="nav-section">
+            <div class="nav-label">Main</div>
+            <a class="nav-item active" href="#" onclick="showSection('overview')">
+                <i class="fas fa-th-large"></i> Overview
+            </a>
+            <a class="nav-item" href="#" onclick="showSection('members')">
+                <i class="fas fa-users"></i> Members
+            </a>
+            <a class="nav-item" href="#" onclick="showSection('performance')">
+                <i class="fas fa-chart-line"></i> Performance
+            </a>
+            <a class="nav-item" href="#" onclick="showSection('issues')">
+                <i class="fas fa-exclamation-triangle"></i> Issues
+            </a>
+            <div class="nav-label">System</div>
+            <a class="nav-item" href="login.html">
+                <i class="fas fa-sign-out-alt"></i> Exit Admin
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="admin-badge">
+                <div class="admin-avatar">👑</div>
+                <div class="admin-info">
+                    <h4>Administrator</h4>
+                    <span>Full Access</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Main ───────────────────────────────────────────────────────────────── -->
+    <div class="main">
+
+        <!-- Top bar -->
+        <div class="topbar">
+            <div>
+                <h2 id="sectionTitle">Dashboard Overview</h2>
+                <p id="sectionDesc">Welcome to the Trigun Robotics Yoga Admin Panel</p>
+            </div>
+            <div class="topbar-right">
+                <a class="back-btn" href="maincode.html"><i class="fas fa-arrow-left"></i> App</a>
+                <button class="refresh-btn" onclick="loadData()">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
+            </div>
+        </div>
+
+        <!-- ── OVERVIEW SECTION ─────────────────────────────────────────────── -->
+        <div id="sec-overview">
+            <!-- Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon blue"><i class="fas fa-users"></i></div>
+                    <div class="stat-info">
+                        <h3 id="statTotalMembers">0</h3>
+                        <p>Total Members</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green"><i class="fas fa-dumbbell"></i></div>
+                    <div class="stat-info">
+                        <h3 id="statTotalSessions">0</h3>
+                        <p>Total Sessions</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orange"><i class="fas fa-chart-line"></i></div>
+                    <div class="stat-info">
+                        <h3 id="statAvgAccuracy">0%</h3>
+                        <p>Avg Accuracy</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon purple"><i class="fas fa-calendar-check"></i></div>
+                    <div class="stat-info">
+                        <h3 id="statActiveToday">0</h3>
+                        <p>Active Today</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon teal"><i class="fas fa-exclamation-circle"></i></div>
+                    <div class="stat-info">
+                        <h3 id="statIssues">0</h3>
+                        <p>Open Issues</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts -->
+            <div class="chart-grid">
+                <!-- Sessions per member bar chart -->
+                <div class="section-card">
+                    <div class="section-header">
+                        <h3><i class="fas fa-chart-bar"></i> Sessions by Member (Top 6)</h3>
+                    </div>
+                    <div class="mini-chart">
+                        <div class="bar-chart" id="sessionsChart"></div>
+                    </div>
+                </div>
+
+                <!-- Level distribution donut -->
+                <div class="section-card">
+                    <div class="section-header">
+                        <h3><i class="fas fa-chart-pie"></i> Member Level Distribution</h3>
+                    </div>
+                    <div class="mini-chart">
+                        <div class="donut-wrap" id="levelDonut"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top performers quick view -->
+            <div class="section-card">
+                <div class="section-header">
+                    <h3><i class="fas fa-trophy"></i> Top Performers</h3>
+                    <span class="count-badge" id="topCount">0</span>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Member</th>
+                                <th>Sessions</th>
+                                <th>Best Score</th>
+                                <th>Avg Accuracy</th>
+                            </tr>
+                        </thead>
+                        <tbody id="topPerformersTable"></tbody>
+                    </table>
+                </div>
+                <div class="empty-state" id="topEmpty" style="display:none">
+                    <i class="fas fa-trophy"></i>
+                    <p>No session data yet. Members need to complete sessions first.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── MEMBERS SECTION ─────────────────────────────────────────────── -->
+        <div id="sec-members" style="display:none">
+            <div class="section-card">
+                <div class="section-header">
+                    <h3><i class="fas fa-users"></i> All Registered Members</h3>
+                    <span class="count-badge" id="membersCount">0</span>
+                </div>
+                <div class="filter-bar">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="memberSearch" placeholder="Search by name or email…"
+                            oninput="filterMembers()">
+                    </div>
+                    <select class="filter-select" id="statusFilter" onchange="filterMembers()">
+                        <option value="">All Statuses</option>
+                        <option value="pending" selected>Pending</option>
+                        <option value="approved">Approved</option>
+                        <option value="hold">Hold</option>
+                        <option value="denied">Denied</option>
+                    </select>
+                    <select class="filter-select" id="levelFilter" onchange="filterMembers()">
+                        <option value="">All Levels</option>
+                        <option value="beginner">Beginner</option>
+                        <option value="intermediate">Intermediate</option>
+                        <option value="advanced">Advanced</option>
+                    </select>
+                    <select class="filter-select" id="genderFilter" onchange="filterMembers()">
+                        <option value="">All Genders</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Member</th>
+                                <th>Phone</th>
+                                <th>Age</th>
+                                <th>Gender</th>
+                                <th>Level</th>
+                                <th>City</th>
+                                <th>Joined</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="membersTable"></tbody>
+                    </table>
+                </div>
+                <div class="empty-state" id="membersEmpty" style="display:none">
+                    <i class="fas fa-users"></i>
+                    <p>No members registered yet.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── PERFORMANCE SECTION ─────────────────────────────────────────── -->
+        <div id="sec-performance" style="display:none">
+            <div class="section-card">
+                <div class="section-header">
+                    <h3><i class="fas fa-chart-line"></i> All Member Performance</h3>
+                    <span class="count-badge" id="perfCount">0</span>
+                </div>
+                <div class="filter-bar">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="perfSearch" placeholder="Search member…" oninput="filterPerformance()">
+                    </div>
+                    <select class="filter-select" id="perfSortFilter" onchange="filterPerformance()">
+                        <option value="avgDesc">Avg Accuracy ↓</option>
+                        <option value="avgAsc">Avg Accuracy ↑</option>
+                        <option value="sessionsDesc">Most Sessions</option>
+                        <option value="bestDesc">Best Score ↓</option>
+                    </select>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Member</th>
+                                <th>Sessions</th>
+                                <th>Avg Accuracy</th>
+                                <th>Best Score</th>
+                                <th>Last Session</th>
+                                <th>Attendance Days</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="perfTable"></tbody>
+                    </table>
+                </div>
+                <div class="empty-state" id="perfEmpty" style="display:none">
+                    <i class="fas fa-chart-line"></i>
+                    <p>No performance data yet.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── ISSUES SECTION ──────────────────────────────────────────────── -->
+        <div id="sec-issues" style="display:none">
+            <div class="section-card">
+                <div class="section-header">
+                    <h3><i class="fas fa-exclamation-triangle"></i> Reported Issues</h3>
+                    <span class="count-badge" id="issuesCount">0</span>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Issue Type</th>
+                                <th>Description</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="issuesTable"></tbody>
+                    </table>
+                </div>
+                <div class="empty-state" id="issuesEmpty" style="display:none">
+                    <i class="fas fa-check-circle"></i>
+                    <p>No issues reported. All clear! ✅</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Member Detail Modal ────────────────────────────────────────────────── -->
+    <div class="modal-overlay" id="memberModal">
+        <div class="modal-box">
+            <div class="modal-head">
+                <h3 id="modalTitle">Member Details</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+        </div>
+    </div>
+
+    <!-- ── Edit Member Modal ────────────────────────────────────────────────── -->
+    <div class="modal-overlay" id="editMemberModal">
+        <div class="modal-box">
+            <div class="modal-head">
+                <h3>Edit Member Details</h3>
+                <button class="modal-close" onclick="closeEditModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editEmailHidden">
+                <div class="detail-row" style="flex-direction:column; align-items:flex-start; gap:8px;">
+                    <label style="color:var(--muted); font-size:0.85rem; font-weight:600;">Full Name</label>
+                    <input type="text" id="editFullName"
+                        style="width:100%; padding:10px; border:1px solid var(--border); border-radius:8px; font-family:'Poppins',sans-serif;">
+                </div>
+                <div class="detail-row" style="flex-direction:column; align-items:flex-start; gap:8px;">
+                    <label style="color:var(--muted); font-size:0.85rem; font-weight:600;">Phone Number</label>
+                    <input type="text" id="editPhone"
+                        style="width:100%; padding:10px; border:1px solid var(--border); border-radius:8px; font-family:'Poppins',sans-serif;">
+                </div>
+                <div class="detail-row" style="flex-direction:column; align-items:flex-start; gap:8px;">
+                    <label style="color:var(--muted); font-size:0.85rem; font-weight:600;">Age</label>
+                    <input type="number" id="editAge"
+                        style="width:100%; padding:10px; border:1px solid var(--border); border-radius:8px; font-family:'Poppins',sans-serif;">
+                </div>
+                <div class="detail-row" style="flex-direction:column; align-items:flex-start; gap:8px;">
+                    <label style="color:var(--muted); font-size:0.85rem; font-weight:600;">City</label>
+                    <input type="text" id="editCity"
+                        style="width:100%; padding:10px; border:1px solid var(--border); border-radius:8px; font-family:'Poppins',sans-serif;">
+                </div>
+                <div class="detail-row" style="flex-direction:column; align-items:flex-start; gap:8px;">
+                    <label style="color:var(--muted); font-size:0.85rem; font-weight:600;">Level</label>
+                    <select id="editLevel"
+                        style="width:100%; padding:10px; border:1px solid var(--border); border-radius:8px; font-family:'Poppins',sans-serif; background:white;">
+                        <option value="beginner">Beginner</option>
+                        <option value="intermediate">Intermediate</option>
+                        <option value="advanced">Advanced</option>
+                    </select>
+                </div>
+                <div style="margin-top:20px; display:flex; justify-content:flex-end; gap:10px;">
+                    <button onclick="closeEditModal()"
+                        style="padding:10px 16px; border:none; background:#f0f4f8; color:var(--text); border-radius:8px; cursor:pointer; font-family:'Poppins',sans-serif;">Cancel</button>
+                    <button onclick="saveMemberDetails()"
+                        style="padding:10px 16px; border:none; background:var(--primary); color:white; border-radius:8px; cursor:pointer; font-family:'Poppins',sans-serif; font-weight:600;">Save
+                        Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ── ADMIN PASSWORD GATE ──────────────────────────────────────────────
+        // To change the password: edit the value below
+        var ADMIN_PASSWORD = 'trigun2025';
+
+        // Run immediately when page loads
+        window.addEventListener('load', function () {
+            // If already verified in this browser session, skip gate
+            if (sessionStorage.getItem('adminOK') === '1') {
+                document.getElementById('adminGate').classList.add('hidden');
+                loadData();
+            }
+            // Otherwise gate stays visible — user must type password
+        });
+
+        function checkGate() {
+            var input = document.getElementById('gateInput');
+            var err = document.getElementById('gateErr');
+            if (input.value === ADMIN_PASSWORD) {
+                // Correct password
+                sessionStorage.setItem('adminOK', '1');
+                document.getElementById('adminGate').classList.add('hidden');
+                loadData();
+            } else {
+                // Wrong password — shake and show error
+                err.style.display = 'block';
+                input.classList.add('wrong');
+                input.value = '';
+                input.focus();
+                setTimeout(function () { input.classList.remove('wrong'); }, 500);
+            }
+        }
+        // ────────────────────────────────────────────────────────────────────
+
+        let allUsers = [];
+        let allPerf = {};
+        let allAttendance = {};
+        let allReports = [];
+
+        // ─── Load data from localStorage ─────────────────────────────────────
+        function loadData() {
+            allUsers = JSON.parse(localStorage.getItem('yogaUsers') || '[]');
+            allPerf = JSON.parse(localStorage.getItem('yogaPerformance') || '{}');
+            allAttendance = JSON.parse(localStorage.getItem('yogaAttendance') || '{}');
+            allReports = JSON.parse(localStorage.getItem('yogaReports') || '[]');
+            renderAll();
+        }
+
+        function renderAll() {
+            renderStats();
+            renderCharts();
+            renderTopPerformers();
+            filterMembers();
+            renderPerformance();
+            renderIssues();
+        }
+
+        // ─── Stats ───────────────────────────────────────────────────────────
+        function renderStats() {
+            const today = new Date().toISOString().split('T')[0];
+            let totalSessions = 0, totalAcc = 0, sessionCount = 0, activeToday = 0;
+
+            allUsers.forEach(u => {
+                const sessions = (allPerf[u.email] || []);
+                totalSessions += sessions.length;
+                sessions.forEach(s => { totalAcc += s.accuracy; sessionCount++; });
+
+                const att = allAttendance[u.email] || {};
+                if (att[today]) activeToday++;
+            });
+
+            document.getElementById('statTotalMembers').textContent = allUsers.length;
+            document.getElementById('statTotalSessions').textContent = totalSessions;
+            document.getElementById('statAvgAccuracy').textContent = sessionCount ? Math.round(totalAcc / sessionCount) + '%' : '0%';
+            document.getElementById('statActiveToday').textContent = activeToday;
+            document.getElementById('statIssues').textContent = allReports.length;
+        }
+
+        // ─── Charts ──────────────────────────────────────────────────────────
+        function renderCharts() {
+            // Bar chart: sessions per member (top 6)
+            const chart = document.getElementById('sessionsChart');
+            const sorted = allUsers.map(u => ({
+                name: u.fullName.split(' ')[0],
+                sessions: (allPerf[u.email] || []).length
+            })).sort((a, b) => b.sessions - a.sessions).slice(0, 6);
+
+            const maxS = Math.max(1, ...sorted.map(x => x.sessions));
+            const colors = ['#4a6fa5', '#166088', '#4fc3f7', '#4caf50', '#ff9800', '#9c27b0'];
+            chart.innerHTML = sorted.length === 0
+                ? '<p style="color:#aaa;font-size:0.8rem;align-self:center">No sessions yet</p>'
+                : sorted.map((d, i) => `
+            <div class="bar-col">
+                <div class="bar-val">${d.sessions}</div>
+                <div class="bar" style="height:${(d.sessions / maxS) * 100}px;background:${colors[i % colors.length]}"
+                     title="${d.name}: ${d.sessions} sessions"></div>
+                <div class="bar-label">${d.name}</div>
+            </div>`).join('');
+
+            // Donut: level distribution
+            const levels = { beginner: 0, intermediate: 0, advanced: 0, unknown: 0 };
+            allUsers.forEach(u => { levels[u.level || 'unknown']++; });
+            const total = allUsers.length || 1;
+            const bPct = Math.round(levels.beginner / total * 100);
+            const iPct = Math.round(levels.intermediate / total * 100);
+            const aPct = Math.round(levels.advanced / total * 100);
+            const uPct = 100 - bPct - iPct - aPct;
+
+            const conic = `conic-gradient(#8bc34a 0% ${bPct}%, #ffc107 ${bPct}% ${bPct + iPct}%, #f44336 ${bPct + iPct}% ${bPct + iPct + aPct}%, #ccc ${bPct + iPct + aPct}% 100%)`;
+            document.getElementById('levelDonut').innerHTML = `
+            <div class="donut" style="background:${conic}">
+                <div class="donut-inner"></div>
+                <div class="donut-center">
+                    <h3>${total}</h3>
+                    <p>members</p>
+                </div>
+            </div>
+            <div class="legend-list">
+                <div class="legend-item"><div class="legend-dot" style="background:#8bc34a"></div> Beginner (${levels.beginner})</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#ffc107"></div> Intermediate (${levels.intermediate})</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#f44336"></div> Advanced (${levels.advanced})</div>
+            </div>`;
+        }
+
+        // ─── Top Performers ───────────────────────────────────────────────────
+        function renderTopPerformers() {
+            const tbody = document.getElementById('topPerformersTable');
+            const data = allUsers.map(u => {
+                const sessions = allPerf[u.email] || [];
+                if (!sessions.length) return null;
+                const avg = Math.round(sessions.reduce((s, r) => s + r.accuracy, 0) / sessions.length);
+                const best = Math.max(...sessions.map(r => r.accuracy));
+                return { user: u, sessions: sessions.length, avg, best };
+            }).filter(Boolean).sort((a, b) => b.avg - a.avg).slice(0, 10);
+
+            document.getElementById('topCount').textContent = data.length;
+            document.getElementById('topEmpty').style.display = data.length ? 'none' : 'block';
+
+            const medals = ['🥇', '🥈', '🥉'];
+            tbody.innerHTML = data.map((d, i) => `
+            <tr>
+                <td style="font-size:1.1rem">${medals[i] || '#' + (i + 1)}</td>
+                <td>
+                    <div class="user-cell">
+                        <div class="user-avatar">${d.user.fullName.charAt(0)}</div>
+                        <div>
+                            <div class="user-name">${d.user.fullName}</div>
+                            <div class="user-email">${d.user.email}</div>
+                        </div>
+                    </div>
+                </td>
+                <td><strong>${d.sessions}</strong></td>
+                <td><span style="color:${d.best >= 80 ? 'var(--success)' : d.best >= 60 ? 'var(--warning)' : 'var(--error)'};font-weight:700">${d.best}%</span></td>
+                <td>
+                    <div class="acc-wrap">
+                        <div class="acc-bar"><div class="acc-fill" style="width:${d.avg}%;background:${d.avg >= 80 ? 'var(--success)' : d.avg >= 60 ? 'var(--warning)' : 'var(--error)'}"></div></div>
+                        <span class="acc-num" style="color:${d.avg >= 80 ? 'var(--success)' : d.avg >= 60 ? 'var(--warning)' : 'var(--error)'}">${d.avg}%</span>
+                    </div>
+                </td>
+            </tr>`).join('');
+        }
+
+        // ─── Members table ────────────────────────────────────────────────────
+        function renderMembers(data) {
+            const users = data || allUsers;
+            document.getElementById('membersCount').textContent = users.length;
+            document.getElementById('membersEmpty').style.display = users.length ? 'none' : 'block';
+
+            document.getElementById('membersTable').innerHTML = users.map(u => {
+                const status = u.status || 'approved';
+                let statusBadgeClass = 'badge-inactive';
+                if (status === 'approved') statusBadgeClass = 'badge-active';
+                else if (status === 'pending') statusBadgeClass = 'badge-intermediate';
+                else if (status === 'hold') statusBadgeClass = 'badge-inactive';
+                else if (status === 'denied') statusBadgeClass = 'badge-advanced';
+
+                return `
+            <tr>
+                <td>
+                    <div class="user-cell">
+                        <div class="user-avatar">${u.fullName.charAt(0)}</div>
+                        <div>
+                            <div class="user-name">${u.fullName}</div>
+                            <div class="user-email">${u.email}</div>
+                        </div>
+                    </div>
+                </td>
+                <td>${u.phone || '—'}</td>
+                <td>${u.age || '—'}</td>
+                <td style="text-transform:capitalize">${u.gender || '—'}</td>
+                <td><span class="badge badge-${u.level || 'beginner'}">${u.level || 'beginner'}</span></td>
+                <td>${u.city || '—'}</td>
+                <td>${u.joinedDate || '—'}</td>
+                <td><span class="badge ${statusBadgeClass}" style="text-transform:capitalize">${status}</span></td>
+                <td>
+                    <button class="action-btn view-btn" onclick="viewMember('${u.email}')" title="View details"><i class="fas fa-eye"></i> View</button>
+                    
+                    <button class="action-btn" style="background:#e3f2fd; color:#1565c0; margin-left:2px;" onclick="editMember('${u.email}')" title="Edit member"><i class="fas fa-edit"></i></button>
+                    
+                    <button class="action-btn" style="background:#e8f5e9; color:#2e7d32; margin-left:2px;" onclick="updateUserStatus('${u.email}', 'approved')" title="Approve"><i class="fas fa-check"></i></button>
+                    <button class="action-btn" style="background:#fff3e0; color:#e65100; margin-left:2px;" onclick="updateUserStatus('${u.email}', 'hold')" title="Hold"><i class="fas fa-pause"></i></button>
+                    <button class="action-btn" style="background:#ffebee; color:#c62828; margin-left:2px;" onclick="updateUserStatus('${u.email}', 'denied')" title="Deny"><i class="fas fa-ban"></i></button>
+                    
+                    <button class="action-btn delete-btn" style="margin-left:2px;" onclick="deleteMember('${u.email}')" title="Delete member"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>`;
+            }).join('');
+        }
+
+        function filterMembers() {
+            const q = document.getElementById('memberSearch').value.toLowerCase();
+            const level = document.getElementById('levelFilter').value;
+            const gender = document.getElementById('genderFilter').value;
+            const status = document.getElementById('statusFilter').value;
+            const filtered = allUsers.filter(u =>
+                (u.fullName.toLowerCase().includes(q) || u.email.toLowerCase().includes(q)) &&
+                (!level || u.level === level) &&
+                (!gender || u.gender === gender) &&
+                (!status || (u.status || 'approved') === status)
+            );
+            renderMembers(filtered);
+        }
+
+        function updateUserStatus(email, newStatus) {
+            const userIndex = allUsers.findIndex(u => u.email === email);
+            if (userIndex === -1) return;
+
+            allUsers[userIndex].status = newStatus;
+            localStorage.setItem('yogaUsers', JSON.stringify(allUsers));
+
+            // Re-load and re-render data
+            loadData();
+        }
+
+        // ─── Performance table ────────────────────────────────────────────────
+        function renderPerformance(data) {
+            const rows = data || buildPerfData();
+            document.getElementById('perfCount').textContent = rows.length;
+            document.getElementById('perfEmpty').style.display = rows.length ? 'none' : 'block';
+
+            document.getElementById('perfTable').innerHTML = rows.map(d => {
+                const attDays = Object.values(allAttendance[d.email] || {}).filter(Boolean).length;
+                const lastDate = d.sessions.length ? d.sessions[d.sessions.length - 1].date + ' ' + d.sessions[d.sessions.length - 1].time : '—';
+                return `<tr>
+                <td>
+                    <div class="user-cell">
+                        <div class="user-avatar">${d.name.charAt(0)}</div>
+                        <div>
+                            <div class="user-name">${d.name}</div>
+                            <div class="user-email">${d.email}</div>
+                        </div>
+                    </div>
+                </td>
+                <td><strong>${d.sessions.length}</strong></td>
+                <td>
+                    <div class="acc-wrap">
+                        <div class="acc-bar"><div class="acc-fill" style="width:${d.avg}%;background:${d.avg >= 80 ? 'var(--success)' : d.avg >= 60 ? 'var(--warning)' : 'var(--error)'}"></div></div>
+                        <span class="acc-num" style="color:${d.avg >= 80 ? 'var(--success)' : d.avg >= 60 ? 'var(--warning)' : 'var(--error)'}">${d.avg}%</span>
+                    </div>
+                </td>
+                <td><span style="color:${d.best >= 80 ? 'var(--success)' : d.best >= 60 ? 'var(--warning)' : 'var(--error)'};font-weight:700">${d.best}%</span></td>
+                <td style="font-size:0.78rem;color:var(--muted)">${lastDate}</td>
+                <td><strong>${attDays}</strong> days</td>
+                <td>
+                    <button class="action-btn view-btn" onclick="viewMember('${d.email}')"><i class="fas fa-chart-bar"></i> Details</button>
+                </td>
+            </tr>`;
+            }).join('');
+        }
+
+        function buildPerfData(sort) {
+            const sortKey = sort || document.getElementById('perfSortFilter')?.value || 'avgDesc';
+            return allUsers.map(u => {
+                const sessions = allPerf[u.email] || [];
+                const avg = sessions.length ? Math.round(sessions.reduce((s, r) => s + r.accuracy, 0) / sessions.length) : 0;
+                const best = sessions.length ? Math.max(...sessions.map(r => r.accuracy)) : 0;
+                return { name: u.fullName, email: u.email, sessions, avg, best };
+            }).sort((a, b) => {
+                if (sortKey === 'avgAsc') return a.avg - b.avg;
+                if (sortKey === 'sessionsDesc') return b.sessions.length - a.sessions.length;
+                if (sortKey === 'bestDesc') return b.best - a.best;
+                return b.avg - a.avg;
+            });
+        }
+
+        function filterPerformance() {
+            const q = document.getElementById('perfSearch').value.toLowerCase();
+            const data = buildPerfData().filter(d => d.name.toLowerCase().includes(q) || d.email.toLowerCase().includes(q));
+            renderPerformance(data);
+        }
+
+        // ─── Issues ───────────────────────────────────────────────────────────
+        function renderIssues() {
+            const tbody = document.getElementById('issuesTable');
+            document.getElementById('issuesCount').textContent = allReports.length;
+            document.getElementById('issuesEmpty').style.display = allReports.length ? 'none' : 'block';
+
+            const typeColors = {
+                camera: '#1565c0', detection: '#6a1b9a', audio: '#e65100',
+                login: '#c62828', calendar: '#00695c', other: '#455a64'
+            };
+            tbody.innerHTML = [...allReports].reverse().map(r => `
+            <tr>
+                <td><div class="user-cell">
+                    <div class="user-avatar" style="background:linear-gradient(135deg,#e57373,#f44336)">${(r.user || '?').charAt(0).toUpperCase()}</div>
+                    <div class="user-email">${r.user}</div>
+                </div></td>
+                <td><span class="badge" style="background:${typeColors[r.type] || '#555'}20;color:${typeColors[r.type] || '#555'};border:1px solid ${typeColors[r.type] || '#555'}40">${r.type}</span></td>
+                <td style="max-width:280px;font-size:0.82rem;color:var(--muted)">${r.description}</td>
+                <td style="font-size:0.78rem;color:var(--muted);white-space:nowrap">${r.date}</td>
+            </tr>`).join('');
+        }
+
+        // ─── View member detail modal ─────────────────────────────────────────
+        function viewMember(email) {
+            const user = allUsers.find(u => u.email === email);
+            if (!user) return;
+
+            const sessions = allPerf[email] || [];
+            const attData = allAttendance[email] || {};
+            const attDays = Object.values(attData).filter(Boolean).length;
+            const avg = sessions.length ? Math.round(sessions.reduce((s, r) => s + r.accuracy, 0) / sessions.length) : 0;
+            const best = sessions.length ? Math.max(...sessions.map(r => r.accuracy)) : 0;
+
+            document.getElementById('modalTitle').textContent = user.fullName;
+            document.getElementById('modalBody').innerHTML = `
+            <div class="detail-row"><span class="label"><i class="fas fa-envelope"></i> Email</span><span class="value">${user.email}</span></div>
+            <div class="detail-row"><span class="label"><i class="fas fa-phone"></i> Phone</span><span class="value">${user.phone || '—'}</span></div>
+            <div class="detail-row"><span class="label"><i class="fas fa-birthday-cake"></i> Age</span><span class="value">${user.age || '—'}</span></div>
+            <div class="detail-row"><span class="label"><i class="fas fa-venus-mars"></i> Gender</span><span class="value" style="text-transform:capitalize">${user.gender || '—'}</span></div>
+            <div class="detail-row"><span class="label"><i class="fas fa-map-marker-alt"></i> City</span><span class="value">${user.city || '—'}</span></div>
+            <div class="detail-row"><span class="label"><i class="fas fa-dumbbell"></i> Level</span><span class="value"><span class="badge badge-${user.level || 'beginner'}">${user.level || 'beginner'}</span></span></div>
+            <div class="detail-row"><span class="label"><i class="fas fa-calendar-plus"></i> Joined</span><span class="value">${user.joinedDate || '—'}</span></div>
+            <div class="detail-row"><span class="label"><i class="fas fa-info-circle"></i> Status</span><span class="value" style="text-transform:capitalize"><strong>${user.status || 'approved'}</strong></span></div>
+            <div class="detail-row"><span class="label"><i class="fas fa-dumbbell"></i> Total Sessions</span><span class="value"><strong>${sessions.length}</strong></span></div>
+            <div class="detail-row"><span class="label"><i class="fas fa-chart-line"></i> Avg Accuracy</span><span class="value" style="color:${avg >= 80 ? 'var(--success)' : avg >= 60 ? 'var(--warning)' : 'var(--error)'};font-weight:700">${avg}%</span></div>
+            <div class="detail-row"><span class="label"><i class="fas fa-trophy"></i> Best Score</span><span class="value" style="color:${best >= 80 ? 'var(--success)' : best >= 60 ? 'var(--warning)' : 'var(--error)'};font-weight:700">${best}%</span></div>
+            <div class="detail-row"><span class="label"><i class="fas fa-calendar-check"></i> Attendance Days</span><span class="value"><strong>${attDays} days</strong></span></div>
+            ${sessions.length ? `
+            <div style="margin-top:16px;font-weight:600;color:var(--primary);font-size:0.88rem;margin-bottom:8px">
+                <i class="fas fa-history"></i> Recent Sessions
+            </div>
+            <div class="perf-sessions">
+                ${[...sessions].reverse().slice(0, 5).map(s => {
+                const cls = s.accuracy >= 80 ? 'high' : s.accuracy >= 60 ? 'mid' : 'low';
+                return `<div class="perf-session-item ${cls}">
+                        <div>
+                            <div style="font-weight:600;font-size:0.82rem">${s.date} ${s.time || ''}</div>
+                            <div style="font-size:0.75rem;color:var(--muted)">${s.workout || 'General'} · ${s.duration || '—'} · ${s.posesCompleted || 0}/${s.totalPoses || 0} poses</div>
+                        </div>
+                        <div class="session-score ${cls}">${s.accuracy}%</div>
+                    </div>`;
+            }).join('')}
+            </div>` : '<p style="color:var(--muted);font-size:0.85rem;text-align:center;padding:16px">No sessions completed yet.</p>'}`;
+
+            document.getElementById('memberModal').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('memberModal').classList.remove('show');
+        }
+
+        // ─── Edit member modal ────────────────────────────────────────────────
+        function editMember(email) {
+            const user = allUsers.find(u => u.email === email);
+            if (!user) return;
+            document.getElementById('editEmailHidden').value = user.email;
+            document.getElementById('editFullName').value = user.fullName || '';
+            document.getElementById('editPhone').value = user.phone || '';
+            document.getElementById('editAge').value = user.age || '';
+            document.getElementById('editCity').value = user.city || '';
+            document.getElementById('editLevel').value = user.level || 'beginner';
+            document.getElementById('editMemberModal').classList.add('show');
+        }
+
+        function closeEditModal() {
+            document.getElementById('editMemberModal').classList.remove('show');
+        }
+
+        function saveMemberDetails() {
+            const email = document.getElementById('editEmailHidden').value;
+            const userIndex = allUsers.findIndex(u => u.email === email);
+            if (userIndex === -1) return;
+
+            allUsers[userIndex].fullName = document.getElementById('editFullName').value.trim();
+            allUsers[userIndex].phone = document.getElementById('editPhone').value.trim();
+            allUsers[userIndex].age = parseInt(document.getElementById('editAge').value) || null;
+            allUsers[userIndex].city = document.getElementById('editCity').value.trim();
+            allUsers[userIndex].level = document.getElementById('editLevel').value;
+
+            localStorage.setItem('yogaUsers', JSON.stringify(allUsers));
+            closeEditModal();
+            loadData(); // refresh the view
+        }
+
+        // ─── Delete member ────────────────────────────────────────────────────
+        function deleteMember(email) {
+            const user = allUsers.find(u => u.email === email);
+            if (!user) return;
+            if (!confirm(`Delete ${user.fullName}? This also removes their performance and attendance data.`)) return;
+
+            allUsers = allUsers.filter(u => u.email !== email);
+            delete allPerf[email];
+            delete allAttendance[email];
+
+            localStorage.setItem('yogaUsers', JSON.stringify(allUsers));
+            localStorage.setItem('yogaPerformance', JSON.stringify(allPerf));
+            localStorage.setItem('yogaAttendance', JSON.stringify(allAttendance));
+
+            renderAll();
+        }
+
+        // ─── Section switcher ─────────────────────────────────────────────────
+        function showSection(name) {
+            ['overview', 'members', 'performance', 'issues'].forEach(s => {
+                document.getElementById('sec-' + s).style.display = s === name ? 'block' : 'none';
+            });
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+
+            const titles = {
+                overview: ['Dashboard Overview', 'Welcome to the Trigun Robotics Yoga Admin Panel'],
+                members: ['Members', 'View and manage all registered members'],
+                performance: ['Performance', 'Session scores and accuracy of all members'],
+                issues: ['Reported Issues', 'Issues submitted by users']
+            };
+            const [title, desc] = titles[name] || ['Dashboard', ''];
+            document.getElementById('sectionTitle').textContent = title;
+            document.getElementById('sectionDesc').textContent = desc;
+        }
+
+        // ─── Close modal on backdrop click ────────────────────────────────────
+        document.getElementById('memberModal').addEventListener('click', function (e) {
+            if (e.target === this) closeModal();
+        });
+        document.getElementById('editMemberModal').addEventListener('click', function (e) {
+            if (e.target === this) closeEditModal();
+        });
+
+        // ─── Initial load ─────────────────────────────────────────────────────
+        loadData();
+    </script>
+</body>
+
+</html>
+
