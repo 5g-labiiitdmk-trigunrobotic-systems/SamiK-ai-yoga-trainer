@@ -1,4 +1,10 @@
-<<style>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About SamiK</title>
+<style>
 :root{--primary:#4a6fa5;--secondary:#1a56a0;--accent:#5b9bd5;--success:#4caf50;--warning:#ff9800;}
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#eef3fb,#f8f9fa);color:#212529;line-height:1.6;}
@@ -28,7 +34,16 @@ body{font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#eef3fb,
 .pose-list{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0;}
 .pose-list li{padding:7px 0 7px 28px;position:relative;border-bottom:1px solid #f4f6f9;font-size:0.88rem;color:#3a3a3a;}
 .pose-list li:last-child{border-bottom:none;}
-.pose-list li::before{content:attr(data-num);position:absolute;left:0;top:6px;width:20px;height:20px;border-radius:50%;background:var(--cat-color);color:white;font-size:0.7rem;font-weight:700;display:flex;align-items:center;justify-content:center;}
+.pose-list li::before{
+    content:"";
+    position:absolute;
+    left:0;
+    top:12px;
+    width:8px;
+    height:8px;
+    border-radius:50%;
+    background:var(--cat-color);
+}
 .tip-box{background:#fff8e1;border-left:4px solid var(--warning);border-radius:8px;padding:12px 16px;font-size:0.88rem;color:#6d5300;margin-top:10px;}
 .tip-box i{color:var(--warning);margin-right:6px;}
 .developer-link{color:#2d6bc4;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:6px;font-size:0.9rem;}
@@ -58,6 +73,7 @@ body{font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#eef3fb,
   .hero h2{font-size:1.4rem;}
   .pose-list{grid-template-columns:1fr;}
 }
+  </head>
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -71,8 +87,8 @@ body{font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#eef3fb,
   
   <div class="hero">
     <img src="aboutpagelogo.png" alt="SamiK Logo" style="width:180px;margin-bottom:5px;">
-    <h2>SamiK – AI Yoga Trainer</h2>
-    <p>A Product of Trigun Robotics Private Limited, Kurnool. SamiK helps you practice yoga correctly at home by watching your pose through the camera, checking your accuracy in real time, and guiding you with voice feedback — just like a personal yoga instructor.</p>
+    <h2>SamiK AI Yoga Trainer</h2>
+    <p>A Product of Trigun Robotics Private Limited, Kurnool. SamiK helps you practice yoga correctly at home by watching your pose through the camera, checking your accuracy in real time, and guiding you with voice feedback just like a personal yoga instructor.</p>
   </div>
 
   <div class="card">
@@ -252,3 +268,4 @@ body{font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#eef3fb,
 
   </div>
 </div>
+</html>
