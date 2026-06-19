@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trigun Robotics – Yoga Trainer | Login</title>
+    <title>Samik-Trigun Robotics Systems Private Limited | Login</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
@@ -789,7 +789,7 @@
                 </div>
                 <div class="form-group">
                     <label><i class="fas fa-phone"></i> Registered Phone Number</label>
-                    <input type="tel" id="fpPhone" placeholder="+91 9876543210">
+                    <input type="tel" id="fpPhone" placeholder="+91 1234567890">
                     <div class="error-msg" id="fpPhoneErr">Phone number is required</div>
                 </div>
                 <div class="alert" id="fpAlert1"></div>
@@ -1006,7 +1006,7 @@
 
         localStorage.setItem('currentUser', JSON.stringify({ email: user.email, fullName: user.fullName }));
         showAlert('loginAlert', 'success', `Welcome back, ${user.fullName.split(' ')[0]}! Loading…`);
-        setTimeout(() => { window.location.href = 'maincode.html'; }, 1200);
+        setTimeout(() => { window.location.href = 'index.html'; }, 1200);
     }
 
     // ─── FORGOT / RESET PASSWORD ───────────────────────────────────────────────
@@ -1135,7 +1135,7 @@
     // ─── Check if already logged in ───────────────────────────────────────────
     window.addEventListener('load', () => {
         if (localStorage.getItem('currentUser')) {
-            window.location.href = 'maincode.html';
+            window.location.href = 'index.html';
         }
     });
 
