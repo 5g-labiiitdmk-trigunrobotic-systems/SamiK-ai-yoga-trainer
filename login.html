@@ -1008,7 +1008,7 @@
         showAlert('loginAlert', 'success', `Welcome back, ${user.fullName.split(' ')[0]}! Loading…`);
         setTimeout(() => {
     const encoded = encodeURIComponent(JSON.stringify({ email: user.email, fullName: user.fullName }));
-    window.location.href = 'maincode.html?user=' + encoded;
+    window.location.href = 'index.html?user=' + encoded;
 }, 1200);
     }
 
@@ -1138,7 +1138,7 @@
     // ─── Check if already logged in ───────────────────────────────────────────
     window.addEventListener('load', () => {
         if (localStorage.getItem('currentUser')) {
-            window.location.href = 'maincode.html';
+            window.location.href = 'index.html';
         }
     });
 
