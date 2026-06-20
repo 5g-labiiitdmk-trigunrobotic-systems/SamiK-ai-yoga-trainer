@@ -932,7 +932,8 @@
             margin-bottom: 24px;
         }
 
-        .gate-card input[type=password] {
+        .gate-card input[type=password],
+        .gate-card input[type=email] {
             width: 100%;
             padding: 13px 16px;
             border: 2px solid #e2e8f0;
@@ -944,7 +945,8 @@
             transition: border-color 0.2s;
         }
 
-        .gate-card input[type=password]:focus {
+        .gate-card input[type=password]:focus,
+        .gate-card input[type=email]:focus {
             border-color: #4a6fa5;
         }
 
@@ -1018,16 +1020,18 @@
 
 <body>
 
-    <!-- ── Admin Password Gate (replaces broken prompt()) ─────────────────────── -->
+    <!-- ── Admin Login Gate (real Supabase auth, checks role = admin) ─────────── -->
     <div id="adminGate">
         <div class="gate-card">
             <div class="gate-icon">🔒</div>
             <h2>Admin Login</h2>
-            <p>Enter the admin password to access the dashboard</p>
-            <input type="password" id="gateInput" placeholder="Enter password"
+            <p>Sign in with your admin account</p>
+            <input type="email" id="gateEmail" placeholder="Admin email" autocomplete="email"
                 onkeydown="if(event.key==='Enter') checkGate()">
-            <div class="gate-err" id="gateErr">❌ Wrong password. Please try again.</div>
-            <button class="gate-btn" onclick="checkGate()">
+            <input type="password" id="gateInput" placeholder="Password" autocomplete="current-password"
+                onkeydown="if(event.key==='Enter') checkGate()">
+            <div class="gate-err" id="gateErr">❌ Invalid login, or this account doesn't have admin access.</div>
+            <button class="gate-btn" id="gateBtn" onclick="checkGate()">
                 🔓 Enter Dashboard
             </button>
             <div class="gate-back" onclick="window.location.href='login.html'">
@@ -1369,37 +1373,78 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // ── ADMIN PASSWORD GATE ──────────────────────────────────────────────
-        // To change the password: edit the value below
-        var ADMIN_PASSWORD = 'trigun2025';
+        // ── Supabase setup ─────────────────────────────────────────────────────
+        const SUPABASE_URL = 'https://tsmcsbeowstrjseqepia.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_JOw8qaABe-obSvtTxiPsmA_inmwx4LT';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // Run immediately when page loads
-        window.addEventListener('load', function () {
-            // If already verified in this browser session, skip gate
-            if (sessionStorage.getItem('adminOK') === '1') {
-                document.getElementById('adminGate').classList.add('hidden');
-                loadData();
+        // ── ADMIN LOGIN GATE ──────────────────────────────────────────────────
+        // Authenticates with Supabase Auth, then checks the profiles.role
+        // column is 'admin' before letting anyone into the dashboard.
+        // This replaces the old static password — that password never actually
+        // logged anyone into Supabase, so RLS silently blocked all reads.
+
+        async function verifyAdmin(userId) {
+            const { data, error } = await supabase
+                .from('profiles')
+                .select('role')
+                .eq('id', userId)
+                .single();
+            return !error && data && data.role === 'admin';
+        }
+
+        // Run immediately when page loads — if there's already a valid admin
+        // session (e.g. page refresh), skip straight to the dashboard.
+        window.addEventListener('load', async function () {
+            const { data } = await supabase.auth.getSession();
+            if (data.session) {
+                const isAdmin = await verifyAdmin(data.session.user.id);
+                if (isAdmin) {
+                    document.getElementById('adminGate').classList.add('hidden');
+                    loadData();
+                    return;
+                }
+                // Logged in, but not an admin account — don't leave them stuck
+                await supabase.auth.signOut();
             }
-            // Otherwise gate stays visible — user must type password
+            // Otherwise gate stays visible — user must log in
         });
 
-        function checkGate() {
-            var input = document.getElementById('gateInput');
+        async function checkGate() {
+            var email = document.getElementById('gateEmail').value.trim();
+            var password = document.getElementById('gateInput').value;
             var err = document.getElementById('gateErr');
-            if (input.value === ADMIN_PASSWORD) {
-                // Correct password
-                sessionStorage.setItem('adminOK', '1');
-                document.getElementById('adminGate').classList.add('hidden');
-                loadData();
-            } else {
-                // Wrong password — shake and show error
+            var btn = document.getElementById('gateBtn');
+
+            err.style.display = 'none';
+            btn.disabled = true;
+
+            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+            if (error || !data.user) {
+                btn.disabled = false;
+                err.textContent = '❌ Invalid email or password.';
                 err.style.display = 'block';
-                input.classList.add('wrong');
-                input.value = '';
-                input.focus();
-                setTimeout(function () { input.classList.remove('wrong'); }, 500);
+                document.getElementById('gateInput').value = '';
+                document.getElementById('gateInput').focus();
+                return;
             }
+
+            const isAdmin = await verifyAdmin(data.user.id);
+            btn.disabled = false;
+
+            if (!isAdmin) {
+                await supabase.auth.signOut();
+                err.textContent = "❌ This account doesn't have admin access.";
+                err.style.display = 'block';
+                document.getElementById('gateInput').value = '';
+                return;
+            }
+
+            document.getElementById('adminGate').classList.add('hidden');
+            loadData();
         }
         // ────────────────────────────────────────────────────────────────────
 
@@ -1408,9 +1453,39 @@
         let allAttendance = {};
         let allReports = [];
 
-        // ─── Load data from localStorage ─────────────────────────────────────
-        function loadData() {
-            allUsers = JSON.parse(localStorage.getItem('yogaUsers') || '[]');
+        // ─── Load data from Supabase (users) + localStorage (sessions/attendance/issues) ───
+        // NOTE: Performance, attendance, and issue-report data still come from
+        // localStorage because the rest of the app (workout pages, etc.) hasn't
+        // been migrated to Supabase yet — only registration/login has. So those
+        // sections will stay empty until those pages also write to Supabase.
+        async function loadData() {
+            const { data: profiles, error } = await supabase
+                .from('profiles')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                console.error('Failed to load users from Supabase:', error);
+                allUsers = [];
+            } else {
+                // Map Supabase column names to the field names the rest of this
+                // dashboard already expects (fullName, joinedDate, etc.)
+                allUsers = (profiles || []).map(p => ({
+                    id: p.id,
+                    fullName: p.full_name || '(no name)',
+                    email: p.email || '',
+                    phone: p.phone,
+                    age: p.age,
+                    gender: p.gender,
+                    level: p.level,
+                    city: p.city,
+                    status: p.status || 'approved',
+                    joinedDate: p.created_at
+                        ? new Date(p.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
+                        : '—'
+                }));
+            }
+
             allPerf = JSON.parse(localStorage.getItem('yogaPerformance') || '{}');
             allAttendance = JSON.parse(localStorage.getItem('yogaAttendance') || '{}');
             allReports = JSON.parse(localStorage.getItem('yogaReports') || '[]');
@@ -1592,12 +1667,19 @@
             renderMembers(filtered);
         }
 
-        function updateUserStatus(email, newStatus) {
-            const userIndex = allUsers.findIndex(u => u.email === email);
-            if (userIndex === -1) return;
+        async function updateUserStatus(email, newStatus) {
+            const user = allUsers.find(u => u.email === email);
+            if (!user) return;
 
-            allUsers[userIndex].status = newStatus;
-            localStorage.setItem('yogaUsers', JSON.stringify(allUsers));
+            const { error } = await supabase
+                .from('profiles')
+                .update({ status: newStatus })
+                .eq('id', user.id);
+
+            if (error) {
+                alert('Failed to update status: ' + error.message);
+                return;
+            }
 
             // Re-load and re-render data
             loadData();
@@ -1748,37 +1830,59 @@
             document.getElementById('editMemberModal').classList.remove('show');
         }
 
-        function saveMemberDetails() {
+        async function saveMemberDetails() {
             const email = document.getElementById('editEmailHidden').value;
-            const userIndex = allUsers.findIndex(u => u.email === email);
-            if (userIndex === -1) return;
+            const user = allUsers.find(u => u.email === email);
+            if (!user) return;
 
-            allUsers[userIndex].fullName = document.getElementById('editFullName').value.trim();
-            allUsers[userIndex].phone = document.getElementById('editPhone').value.trim();
-            allUsers[userIndex].age = parseInt(document.getElementById('editAge').value) || null;
-            allUsers[userIndex].city = document.getElementById('editCity').value.trim();
-            allUsers[userIndex].level = document.getElementById('editLevel').value;
+            const { error } = await supabase
+                .from('profiles')
+                .update({
+                    full_name: document.getElementById('editFullName').value.trim(),
+                    phone: document.getElementById('editPhone').value.trim(),
+                    age: parseInt(document.getElementById('editAge').value) || null,
+                    city: document.getElementById('editCity').value.trim(),
+                    level: document.getElementById('editLevel').value
+                })
+                .eq('id', user.id);
 
-            localStorage.setItem('yogaUsers', JSON.stringify(allUsers));
+            if (error) {
+                alert('Failed to save changes: ' + error.message);
+                return;
+            }
+
             closeEditModal();
             loadData(); // refresh the view
         }
 
         // ─── Delete member ────────────────────────────────────────────────────
-        function deleteMember(email) {
+        // NOTE: This removes the member's profile row, so they disappear from
+        // this dashboard and lose their data here. But it does NOT delete their
+        // actual login account (auth.users) — that requires Supabase's admin API
+        // with the service_role key, which must never live in client-side code
+        // like this page. To fully delete accounts, you'd need a small server-side
+        // function (e.g. a Supabase Edge Function) that holds that key securely.
+        async function deleteMember(email) {
             const user = allUsers.find(u => u.email === email);
             if (!user) return;
-            if (!confirm(`Delete ${user.fullName}? This also removes their performance and attendance data.`)) return;
+            if (!confirm(`Remove ${user.fullName} from this dashboard? Their login account will still exist, but their profile and data shown here will be deleted.`)) return;
 
-            allUsers = allUsers.filter(u => u.email !== email);
+            const { error } = await supabase
+                .from('profiles')
+                .delete()
+                .eq('id', user.id);
+
+            if (error) {
+                alert('Failed to delete member: ' + error.message);
+                return;
+            }
+
             delete allPerf[email];
             delete allAttendance[email];
-
-            localStorage.setItem('yogaUsers', JSON.stringify(allUsers));
             localStorage.setItem('yogaPerformance', JSON.stringify(allPerf));
             localStorage.setItem('yogaAttendance', JSON.stringify(allAttendance));
 
-            renderAll();
+            loadData();
         }
 
         // ─── Section switcher ─────────────────────────────────────────────────
@@ -1814,4 +1918,3 @@
 </body>
 
 </html>
-
