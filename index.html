@@ -5977,30 +5977,6 @@
         
         };
 
-        //new code added here
-
-        // ── AUTO-CREATE ADMIN ACCOUNT if not registered ───────────────────
-        (function ensureAdminAccount() {
-            const ADMIN_EMAIL = 'admin@trigunrobotics.com';
-            let users = JSON.parse(localStorage.getItem('yogaUsers') || '[]');
-            if (!users.find(u => u.email.toLowerCase() === ADMIN_EMAIL)) {
-                users.push({
-                    id: 'admin-001',
-                    fullName: 'Administrator',
-                    email: ADMIN_EMAIL,
-                    phone: '',
-                    age: '',
-                    gender: '',
-                    level: 'advanced',
-                    city: 'Kurnool',
-                    password: 'trigun2025',
-                    joinedDate: new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }),
-                    joinedTimestamp: Date.now()
-                });
-                localStorage.setItem('yogaUsers', JSON.stringify(users));
-            }
-        })();
-        // ─────────────────────────────────────────────────────────────────
 
         // ── LOGIN GUARD (works with file:// double-click) ─────────────────
         function checkAuthentication() {
