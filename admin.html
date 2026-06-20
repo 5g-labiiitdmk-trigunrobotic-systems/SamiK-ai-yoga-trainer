@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -1409,13 +1410,34 @@
         let allReports = [];
 
         // ─── Load data from localStorage ─────────────────────────────────────
-        function loadData() {
-            allUsers = JSON.parse(localStorage.getItem('yogaUsers') || '[]');
-            allPerf = JSON.parse(localStorage.getItem('yogaPerformance') || '{}');
-            allAttendance = JSON.parse(localStorage.getItem('yogaAttendance') || '{}');
-            allReports = JSON.parse(localStorage.getItem('yogaReports') || '[]');
-            renderAll();
-        }
+        async function loadData() {
+
+    const { data, error } = await sb
+        .from('users')
+        .select('*');
+
+    if (error) {
+        console.error(error);
+        return;
+    }
+
+    allUsers = data.map(u => ({
+        fullName: u.full_name,
+        email: u.email,
+        phone: u.phone,
+        age: u.age,
+        gender: u.gender,
+        level: u.level,
+        city: u.city,
+        status: 'approved'
+    }));
+
+    allPerf = JSON.parse(localStorage.getItem('yogaPerformance') || '{}');
+    allAttendance = JSON.parse(localStorage.getItem('yogaAttendance') || '{}');
+    allReports = JSON.parse(localStorage.getItem('yogaReports') || '[]');
+
+    renderAll();
+}
 
         function renderAll() {
             renderStats();
@@ -1811,6 +1833,17 @@
         // ─── Initial load ─────────────────────────────────────────────────────
         loadData();
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+const supabaseUrl = 'https://bnmzvsahodcorqmluwwc.supabase.co';
+const supabaseKey = 'sb_publishable_VVGySxMsRyweQ0uvNRkllg_5EKE4Q7v';
+
+const sb = window.supabase.createClient(
+  supabaseUrl,
+  supabaseKey
+);
+</script>
 </body>
 
 </html>
