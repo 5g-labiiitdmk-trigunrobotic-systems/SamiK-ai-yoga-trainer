@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Samik-Trigun Robotics Systems Private Limited</title>
+    <title>Admin Dashboard – Trigun Robotics Yoga</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link
         href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600&display=swap"
@@ -932,8 +932,7 @@
             margin-bottom: 24px;
         }
 
-        .gate-card input[type=password],
-        .gate-card input[type=email] {
+        .gate-card input[type=password] {
             width: 100%;
             padding: 13px 16px;
             border: 2px solid #e2e8f0;
@@ -945,8 +944,7 @@
             transition: border-color 0.2s;
         }
 
-        .gate-card input[type=password]:focus,
-        .gate-card input[type=email]:focus {
+        .gate-card input[type=password]:focus {
             border-color: #4a6fa5;
         }
 
@@ -1020,18 +1018,16 @@
 
 <body>
 
-    <!-- ── Admin Login Gate (real Supabase auth, checks role = admin) ─────────── -->
+    <!-- ── Admin Password Gate (replaces broken prompt()) ─────────────────────── -->
     <div id="adminGate">
         <div class="gate-card">
             <div class="gate-icon">🔒</div>
             <h2>Admin Login</h2>
-            <p>Sign in with your admin account</p>
-            <input type="email" id="gateEmail" placeholder="Admin email" autocomplete="email"
+            <p>Enter the admin password to access the dashboard</p>
+            <input type="password" id="gateInput" placeholder="Enter password"
                 onkeydown="if(event.key==='Enter') checkGate()">
-            <input type="password" id="gateInput" placeholder="Password" autocomplete="current-password"
-                onkeydown="if(event.key==='Enter') checkGate()">
-            <div class="gate-err" id="gateErr">❌ Invalid login, or this account doesn't have admin access.</div>
-            <button class="gate-btn" id="gateBtn" onclick="checkGate()">
+            <div class="gate-err" id="gateErr">❌ Wrong password. Please try again.</div>
+            <button class="gate-btn" onclick="checkGate()">
                 🔓 Enter Dashboard
             </button>
             <div class="gate-back" onclick="window.location.href='login.html'">
@@ -1087,7 +1083,7 @@
                 <p id="sectionDesc">Welcome to the Trigun Robotics Yoga Admin Panel</p>
             </div>
             <div class="topbar-right">
-                <a class="back-btn" href="index.html"><i class="fas fa-arrow-left"></i> App</a>
+                <a class="back-btn" href="maincode.html"><i class="fas fa-arrow-left"></i> App</a>
                 <button class="refresh-btn" onclick="loadData()">
                     <i class="fas fa-sync-alt"></i> Refresh
                 </button>
@@ -1373,119 +1369,48 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // ── Supabase setup ─────────────────────────────────────────────────────
-        const SUPABASE_URL = 'https://tsmcsbeowstrjseqepia.supabase.co';
-        const SUPABASE_KEY = 'sb_publishable_JOw8qaABe-obSvtTxiPsmA_inmwx4LT';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        // ── ADMIN PASSWORD GATE ──────────────────────────────────────────────
+        // To change the password: edit the value below
+        var ADMIN_PASSWORD = 'trigun2025';
 
-        // ── ADMIN LOGIN GATE ──────────────────────────────────────────────────
-        // Authenticates with Supabase Auth, then checks the profiles.role
-        // column is 'admin' before letting anyone into the dashboard.
-        // This replaces the old static password — that password never actually
-        // logged anyone into Supabase, so RLS silently blocked all reads.
-
-        async function verifyAdmin(userId) {
-            const { data, error } = await supabase
-                .from('profiles')
-                .select('role')
-                .eq('id', userId)
-                .single();
-            return !error && data && data.role === 'admin';
-        }
-
-        // Run immediately when page loads — if there's already a valid admin
-        // session (e.g. page refresh), skip straight to the dashboard.
-        window.addEventListener('load', async function () {
-            const { data } = await supabase.auth.getSession();
-            if (data.session) {
-                const isAdmin = await verifyAdmin(data.session.user.id);
-                if (isAdmin) {
-                    document.getElementById('adminGate').classList.add('hidden');
-                    loadData();
-                    return;
-                }
-                // Logged in, but not an admin account — don't leave them stuck
-                await supabase.auth.signOut();
+        // Run immediately when page loads
+        window.addEventListener('load', function () {
+            // If already verified in this browser session, skip gate
+            if (sessionStorage.getItem('adminOK') === '1') {
+                document.getElementById('adminGate').classList.add('hidden');
+                loadData();
             }
-            // Otherwise gate stays visible — user must log in
+            // Otherwise gate stays visible — user must type password
         });
 
-        async function checkGate() {
-            var email = document.getElementById('gateEmail').value.trim();
-            var password = document.getElementById('gateInput').value;
+        function checkGate() {
+            var input = document.getElementById('gateInput');
             var err = document.getElementById('gateErr');
-            var btn = document.getElementById('gateBtn');
-
-            err.style.display = 'none';
-            btn.disabled = true;
-
-            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-
-            if (error || !data.user) {
-                btn.disabled = false;
-                err.textContent = '❌ Invalid email or password.';
+            if (input.value === ADMIN_PASSWORD) {
+                // Correct password
+                sessionStorage.setItem('adminOK', '1');
+                document.getElementById('adminGate').classList.add('hidden');
+                loadData();
+            } else {
+                // Wrong password — shake and show error
                 err.style.display = 'block';
-                document.getElementById('gateInput').value = '';
-                document.getElementById('gateInput').focus();
-                return;
+                input.classList.add('wrong');
+                input.value = '';
+                input.focus();
+                setTimeout(function () { input.classList.remove('wrong'); }, 500);
             }
-
-            const isAdmin = await verifyAdmin(data.user.id);
-            btn.disabled = false;
-
-            if (!isAdmin) {
-                await supabase.auth.signOut();
-                err.textContent = "❌ This account doesn't have admin access.";
-                err.style.display = 'block';
-                document.getElementById('gateInput').value = '';
-                return;
-            }
-
-            document.getElementById('adminGate').classList.add('hidden');
-            loadData();
         }
         // ────────────────────────────────────────────────────────────────────
 
-        let allUsers = []; 
+        let allUsers = [];
         let allPerf = {};
         let allAttendance = {};
         let allReports = [];
 
-        // ─── Load data from Supabase (users) + localStorage (sessions/attendance/issues) ───
-        // NOTE: Performance, attendance, and issue-report data still come from
-        // localStorage because the rest of the app (workout pages, etc.) hasn't
-        // been migrated to Supabase yet — only registration/login has. So those
-        // sections will stay empty until those pages also write to Supabase.
-        async function loadData() {
-            const { data: profiles, error } = await supabase
-                .from('profiles')
-                .select('*')
-                .order('created_at', { ascending: false });
-
-            if (error) {
-                console.error('Failed to load users from Supabase:', error);
-                allUsers = [];
-            } else {
-                // Map Supabase column names to the field names the rest of this
-                // dashboard already expects (fullName, joinedDate, etc.)
-                allUsers = (profiles || []).map(p => ({
-                    id: p.id,
-                    fullName: p.full_name || '(no name)',
-                    email: p.email || '',
-                    phone: p.phone,
-                    age: p.age,
-                    gender: p.gender,
-                    level: p.level,
-                    city: p.city,
-                    status: p.status || 'approved',
-                    joinedDate: p.created_at
-                        ? new Date(p.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
-                        : '—'
-                }));
-            }
-
+        // ─── Load data from localStorage ─────────────────────────────────────
+        function loadData() {
+            allUsers = JSON.parse(localStorage.getItem('yogaUsers') || '[]');
             allPerf = JSON.parse(localStorage.getItem('yogaPerformance') || '{}');
             allAttendance = JSON.parse(localStorage.getItem('yogaAttendance') || '{}');
             allReports = JSON.parse(localStorage.getItem('yogaReports') || '[]');
@@ -1667,19 +1592,12 @@
             renderMembers(filtered);
         }
 
-        async function updateUserStatus(email, newStatus) {
-            const user = allUsers.find(u => u.email === email);
-            if (!user) return;
+        function updateUserStatus(email, newStatus) {
+            const userIndex = allUsers.findIndex(u => u.email === email);
+            if (userIndex === -1) return;
 
-            const { error } = await supabase
-                .from('profiles')
-                .update({ status: newStatus })
-                .eq('id', user.id);
-
-            if (error) {
-                alert('Failed to update status: ' + error.message);
-                return;
-            }
+            allUsers[userIndex].status = newStatus;
+            localStorage.setItem('yogaUsers', JSON.stringify(allUsers));
 
             // Re-load and re-render data
             loadData();
@@ -1830,59 +1748,37 @@
             document.getElementById('editMemberModal').classList.remove('show');
         }
 
-        async function saveMemberDetails() {
+        function saveMemberDetails() {
             const email = document.getElementById('editEmailHidden').value;
-            const user = allUsers.find(u => u.email === email);
-            if (!user) return;
+            const userIndex = allUsers.findIndex(u => u.email === email);
+            if (userIndex === -1) return;
 
-            const { error } = await supabase
-                .from('profiles')
-                .update({
-                    full_name: document.getElementById('editFullName').value.trim(),
-                    phone: document.getElementById('editPhone').value.trim(),
-                    age: parseInt(document.getElementById('editAge').value) || null,
-                    city: document.getElementById('editCity').value.trim(),
-                    level: document.getElementById('editLevel').value
-                })
-                .eq('id', user.id);
+            allUsers[userIndex].fullName = document.getElementById('editFullName').value.trim();
+            allUsers[userIndex].phone = document.getElementById('editPhone').value.trim();
+            allUsers[userIndex].age = parseInt(document.getElementById('editAge').value) || null;
+            allUsers[userIndex].city = document.getElementById('editCity').value.trim();
+            allUsers[userIndex].level = document.getElementById('editLevel').value;
 
-            if (error) {
-                alert('Failed to save changes: ' + error.message);
-                return;
-            }
-
+            localStorage.setItem('yogaUsers', JSON.stringify(allUsers));
             closeEditModal();
             loadData(); // refresh the view
         }
 
         // ─── Delete member ────────────────────────────────────────────────────
-        // NOTE: This removes the member's profile row, so they disappear from
-        // this dashboard and lose their data here. But it does NOT delete their
-        // actual login account (auth.users) — that requires Supabase's admin API
-        // with the service_role key, which must never live in client-side code
-        // like this page. To fully delete accounts, you'd need a small server-side
-        // function (e.g. a Supabase Edge Function) that holds that key securely.
-        async function deleteMember(email) {
+        function deleteMember(email) {
             const user = allUsers.find(u => u.email === email);
             if (!user) return;
-            if (!confirm(`Remove ${user.fullName} from this dashboard? Their login account will still exist, but their profile and data shown here will be deleted.`)) return;
+            if (!confirm(`Delete ${user.fullName}? This also removes their performance and attendance data.`)) return;
 
-            const { error } = await supabase
-                .from('profiles')
-                .delete()
-                .eq('id', user.id);
-
-            if (error) {
-                alert('Failed to delete member: ' + error.message);
-                return;
-            }
-
+            allUsers = allUsers.filter(u => u.email !== email);
             delete allPerf[email];
             delete allAttendance[email];
+
+            localStorage.setItem('yogaUsers', JSON.stringify(allUsers));
             localStorage.setItem('yogaPerformance', JSON.stringify(allPerf));
             localStorage.setItem('yogaAttendance', JSON.stringify(allAttendance));
 
-            loadData();
+            renderAll();
         }
 
         // ─── Section switcher ─────────────────────────────────────────────────
@@ -1918,3 +1814,4 @@
 </body>
 
 </html>
+
