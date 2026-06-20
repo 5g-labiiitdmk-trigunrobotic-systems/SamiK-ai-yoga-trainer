@@ -1,11 +1,10 @@
 
 <!DOCTYPE html>
 <html lang="en">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Samik-Trigun Robotics Systems Private Limited | Login</title>
+    <title>Trigun Robotics – Yoga Trainer | Login</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
@@ -790,7 +789,7 @@
                 </div>
                 <div class="form-group">
                     <label><i class="fas fa-phone"></i> Registered Phone Number</label>
-                    <input type="tel" id="fpPhone" placeholder="+91 1234567890">
+                    <input type="tel" id="fpPhone" placeholder="+91 9876543210">
                     <div class="error-msg" id="fpPhoneErr">Phone number is required</div>
                 </div>
                 <div class="alert" id="fpAlert1"></div>
@@ -835,16 +834,6 @@
 </div>
 
 <script>
-    const SUPABASE_URL = "https://tsmcsbeowstrjseqepia.supabase.co";
-
-const SUPABASE_KEY = "PASTE_YOUR_PUBLISHABLE_KEY_HERE";
-
-const supabase = window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY
-);
-
-console.log("Supabase Connected");
     window.onerror = function(msg, url, line, col, error) {
         alert('JS ERROR: ' + msg + ' (line ' + line + ')');
         return false;
@@ -1017,7 +1006,10 @@ console.log("Supabase Connected");
 
         localStorage.setItem('currentUser', JSON.stringify({ email: user.email, fullName: user.fullName }));
         showAlert('loginAlert', 'success', `Welcome back, ${user.fullName.split(' ')[0]}! Loading…`);
-        setTimeout(() => { window.location.href = 'index.html'; }, 1200);
+        setTimeout(() => {
+    const encoded = encodeURIComponent(JSON.stringify({ email: user.email, fullName: user.fullName }));
+    window.location.href = 'maincode.html?user=' + encoded;
+}, 1200);
     }
 
     // ─── FORGOT / RESET PASSWORD ───────────────────────────────────────────────
@@ -1146,7 +1138,7 @@ console.log("Supabase Connected");
     // ─── Check if already logged in ───────────────────────────────────────────
     window.addEventListener('load', () => {
         if (localStorage.getItem('currentUser')) {
-            window.location.href = 'index.html';
+            window.location.href = 'maincode.html';
         }
     });
 
