@@ -835,6 +835,16 @@
 </div>
 
 <script>
+    const SUPABASE_URL = "https://tsmcsbeowstrjseqepia.supabase.co";
+
+const SUPABASE_KEY = "PASTE_YOUR_PUBLISHABLE_KEY_HERE";
+
+const supabase = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+);
+
+console.log("Supabase Connected");
     window.onerror = function(msg, url, line, col, error) {
         alert('JS ERROR: ' + msg + ' (line ' + line + ')');
         return false;
