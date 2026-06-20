@@ -7,6 +7,7 @@
     <title>Trigun Robotics – Yoga Trainer | Login</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
     <style>
         :root {
             --primary: #2d6bc4;
@@ -933,7 +934,7 @@
     }
 
     // ─── REGISTER ──────────────────────────────────────────────────────────────
-    function handleRegister() {
+    async function handleRegister() {
         let ok = true;
         ok = validateField('regPassword', 'passErr', v => v.length >= 6) && ok;
         ok = validateField('regConfirm', 'confirmErr', v => v === document.getElementById('regPassword').value) && ok;
@@ -962,8 +963,19 @@
             joinedTimestamp: Date.now()
         };
 
-        users.push(newUser);
-        localStorage.setItem('yogaUsers', JSON.stringify(users));
+        const { data, error } = await supabase
+  .from('users')
+  .insert([
+    {
+      full_name: fullName,
+      email: email
+    }
+  ]);
+
+if (error) {
+  showAlert('registerAlert', 'error', error.message);
+  return;
+}
 
         showAlert('registerAlert', 'success', 'Registration successful! You can now log in.');
         setTimeout(() => {
@@ -1182,6 +1194,17 @@
             showAlert('adminAlert', 'error', 'Incorrect admin password.');
         }
     }
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const supabaseUrl = 'https://bnmzvsahodcorqmluwwc.supabase.co';
+
+const supabaseKey = 'sb_publishable_VVGySxMsRyweQ0uvNRkllg_5EKE4Q7v';
+
+const supabase = window.supabase.createClient(
+  supabaseUrl,
+  supabaseKey
+);
 </script>
 </body>
 </html>
