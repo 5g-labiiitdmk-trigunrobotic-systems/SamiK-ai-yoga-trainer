@@ -1372,8 +1372,6 @@
 
     <script>
         // ── ADMIN PASSWORD GATE ──────────────────────────────────────────────
-        // To change the password: edit the value below
-        var ADMIN_PASSWORD = 'trigun2025';
 
         // Run immediately when page loads
         window.addEventListener('load', function () {
@@ -1385,23 +1383,25 @@
             // Otherwise gate stays visible — user must type password
         });
 
-        function checkGate() {
+        async function checkGate() {
             var input = document.getElementById('gateInput');
             var err = document.getElementById('gateErr');
-            if (input.value === ADMIN_PASSWORD) {
-                // Correct password
-                sessionStorage.setItem('adminOK', '1');
-                document.getElementById('adminGate').classList.add('hidden');
-                loadData();
-            } else {
-                // Wrong password — shake and show error
-                err.style.display = 'block';
-                input.classList.add('wrong');
-                input.value = '';
-                input.focus();
-                setTimeout(function () { input.classList.remove('wrong'); }, 500);
-            }
-        }
+          const { data, error } = await sb
+    .from('admins')
+    .select('*')
+    .eq('password', input.value);
+
+if (data && data.length > 0) {
+    sessionStorage.setItem('adminOK', '1');
+    document.getElementById('adminGate').classList.add('hidden');
+    loadData();
+} else {
+    err.style.display = 'block';
+    input.classList.add('wrong');
+    input.value = '';
+    input.focus();
+    setTimeout(function () { input.classList.remove('wrong'); }, 500);
+}
         // ────────────────────────────────────────────────────────────────────
 
         let allUsers = [];
