@@ -1178,7 +1178,7 @@ if (error) {
         document.getElementById('adminAlert').style.display = 'none';
     }
 
-    function handleAdminLogin() {
+    async function handleAdminLogin() {
         const password = document.getElementById('adminPassword').value;
         const err = document.getElementById('adminPassErr');
         
@@ -1188,16 +1188,36 @@ if (error) {
         } else {
             err.style.display = 'none';
         }
+        const { data, error } = await sb
+    .from('admins')
+    .select('*')
+    .eq('password', password);
+
+if (data && data.length > 0) {
+
+    sessionStorage.setItem('adminOK', '1');
+
+    showAlert(
+        'adminAlert',
+        'success',
+        'Admin login successful! Redirecting...'
+    );
+
+    setTimeout(() => {
+        window.location.href = 'admin.html';
+    }, 1200);
+
+} else {
+
+    showAlert(
+        'adminAlert',
+        'error',
+        'Incorrect admin password.'
+    );
+
+}
         
-        if (password === 'trigun2025') {
-            sessionStorage.setItem('adminOK', '1');
-            showAlert('adminAlert', 'success', 'Admin login successful! Redirecting...');
-            setTimeout(() => {
-                window.location.href = 'admin.html';
-            }, 1200);
-        } else {
-            showAlert('adminAlert', 'error', 'Incorrect admin password.');
-        }
+        
     }
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
