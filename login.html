@@ -1004,7 +1004,7 @@ if (error) {
     }
 
     // ─── LOGIN ──────────────────────────────────────────────────────────────────
-    function handleLogin() {
+  async function handleLogin() {
         const email    = document.getElementById('loginEmail').value.trim().toLowerCase();
         const password = document.getElementById('loginPassword').value;
         let ok = true;
@@ -1038,6 +1038,7 @@ setTimeout(() => {
     }));
     window.location.href = 'index.html?user=' + encoded;
 }, 1200);
+  }
   // ─── FORGOT / RESET PASSWORD ───────────────────────────────
 let fpVerifiedEmail = null;
 
