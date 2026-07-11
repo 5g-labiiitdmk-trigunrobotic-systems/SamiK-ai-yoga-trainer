@@ -1012,127 +1012,183 @@ if (error) {
         ok = validateField('loginPassword', 'loginPassErr', v => v.length > 0) && ok;
         if (!ok) return;
 
-        const users = JSON.parse(localStorage.getItem('yogaUsers') || '[]');
-        const user  = users.find(u => u.email.toLowerCase() === email && u.password === password);
+      const { data, error } = await sb
+    .from('users')
+    .select('*')
+    .eq('email', email)
+    .eq('password', password)
+    .single();
 
-        if (!user) {
-            showAlert('loginAlert', 'error', 'Invalid email or password. Please try again.');
-            return;
-        }
+if (error || !data) {
+    showAlert('loginAlert', 'error', 'Invalid email or password. Please try again.');
+    return;
+}
 
-        
+localStorage.setItem('currentUser', JSON.stringify({
+    email: data.email,
+    fullName: data.full_name
+}));
 
-        localStorage.setItem('currentUser', JSON.stringify({ email: user.email, fullName: user.fullName }));
-        showAlert('loginAlert', 'success', `Welcome back, ${user.fullName.split(' ')[0]}! Loading…`);
-        setTimeout(() => {
-    const encoded = encodeURIComponent(JSON.stringify({ email: user.email, fullName: user.fullName }));
+showAlert('loginAlert', 'success', `Welcome back, ${data.full_name.split(' ')[0]}! Loading…`);
+
+setTimeout(() => {
+    const encoded = encodeURIComponent(JSON.stringify({
+        email: data.email,
+        fullName: data.full_name
+    }));
     window.location.href = 'index.html?user=' + encoded;
 }, 1200);
-    }
+  // ─── FORGOT / RESET PASSWORD ───────────────────────────────
+let fpVerifiedEmail = null;
 
-    // ─── FORGOT / RESET PASSWORD ───────────────────────────────────────────────
-    let fpVerifiedEmail = null; // holds the email of the user verified in step 1
+function openForgotPassword() {
+    fpVerifiedEmail = null;
 
-    function openForgotPassword() {
-        // Reset everything to step 1
-        fpVerifiedEmail = null;
-        document.getElementById('fpEmail').value = '';
-        document.getElementById('fpPhone').value = '';
-        document.getElementById('fpNewPassword').value = '';
-        document.getElementById('fpConfirmPassword').value = '';
-        document.getElementById('fpStrengthBar').style.width = '0%';
-        document.getElementById('fpStrengthLabel').textContent = '';
+    document.getElementById('fpEmail').value = '';
+    document.getElementById('fpPhone').value = '';
+    document.getElementById('fpNewPassword').value = '';
+    document.getElementById('fpConfirmPassword').value = '';
 
-        ['fpAlert1', 'fpAlert2'].forEach(id => {
-            const el = document.getElementById(id);
-            el.className = 'alert';
-            el.style.display = 'none';
-        });
+    document.getElementById('fpStrengthBar').style.width = '0%';
+    document.getElementById('fpStrengthLabel').textContent = '';
 
-        document.getElementById('fpStep1').style.display = 'block';
-        document.getElementById('fpStep2').style.display = 'none';
-
-        document.getElementById('fpOverlay').classList.add('active');
-        setTimeout(() => document.getElementById('fpEmail').focus(), 100);
-    }
-
-    function closeForgotPassword() {
-        document.getElementById('fpOverlay').classList.remove('active');
-    }
-
-    // Step 1: verify the user owns this account via email + phone
-    function handleVerifyIdentity() {
-        alert('Verify button clicked!'); // TEMP DIAGNOSTIC - remove after testing
-        const email = document.getElementById('fpEmail').value.trim().toLowerCase();
-        const phone = document.getElementById('fpPhone').value.trim();
-
-        let ok = true;
-        ok = validateField('fpEmail', 'fpEmailErr', v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) && ok;
-        ok = validateField('fpPhone', 'fpPhoneErr', v => v.trim().length >= 7) && ok;
-        if (!ok) return;
-
-        const users = JSON.parse(localStorage.getItem('yogaUsers') || '[]');
-
-        // Normalize phone numbers: strip spaces, dashes, plus signs, leading zeros/country code
-        const normalizePhone = p => (p || '').toString().replace(/[\s\-()]/g, '').replace(/^(\+?91)/, '');
-
-        const enteredPhone = normalizePhone(phone);
-        const user = users.find(u =>
-            u.email && u.email.toLowerCase() === email &&
-            normalizePhone(u.phone) === enteredPhone
-        );
-
-        if (!user) {
-            showAlert('fpAlert1', 'error', 'No account found with that email and phone number combination.');
-            return;
-        }
-
-        // Identity verified — move to step 2
-        fpVerifiedEmail = user.email.toLowerCase();
-        document.getElementById('fpStep1').style.display = 'none';
-        document.getElementById('fpStep2').style.display = 'block';
-        setTimeout(() => document.getElementById('fpNewPassword').focus(), 100);
-    }
-
-    // Step 2: set the new password
-    function handleResetPassword() {
-        if (!fpVerifiedEmail) {
-            // Safety check — shouldn't happen, but send them back to step 1
-            document.getElementById('fpStep1').style.display = 'block';
-            document.getElementById('fpStep2').style.display = 'none';
-            return;
-        }
-
-        let ok = true;
-        ok = validateField('fpNewPassword', 'fpNewPassErr', v => v.length >= 6) && ok;
-        ok = validateField('fpConfirmPassword', 'fpConfirmErr', v => v === document.getElementById('fpNewPassword').value) && ok;
-        if (!ok) return;
-
-        const newPassword = document.getElementById('fpNewPassword').value;
-
-        const users = JSON.parse(localStorage.getItem('yogaUsers') || '[]');
-        const idx = users.findIndex(u => u.email.toLowerCase() === fpVerifiedEmail);
-
-        if (idx === -1) {
-            showAlert('fpAlert2', 'error', 'Something went wrong. Please try again.');
-            return;
-        }
-
-        users[idx].password = newPassword;
-        localStorage.setItem('yogaUsers', JSON.stringify(users));
-
-        showAlert('fpAlert2', 'success', 'Password updated successfully! You can now log in with your new password.');
-
-        setTimeout(() => {
-            closeForgotPassword();
-        }, 1800);
-    }
-
-    // Close modal when clicking outside it
-    document.getElementById('fpOverlay').addEventListener('click', e => {
-        if (e.target.id === 'fpOverlay') closeForgotPassword();
+    ['fpAlert1', 'fpAlert2'].forEach(id => {
+        const el = document.getElementById(id);
+        el.className = 'alert';
+        el.style.display = 'none';
     });
 
+    document.getElementById('fpStep1').style.display = 'block';
+    document.getElementById('fpStep2').style.display = 'none';
+
+    document.getElementById('fpOverlay').classList.add('active');
+
+    setTimeout(() => {
+        document.getElementById('fpEmail').focus();
+    }, 100);
+}
+
+function closeForgotPassword() {
+    document.getElementById('fpOverlay').classList.remove('active');
+}
+
+// STEP 1 - Verify Email + Phone
+async function handleVerifyIdentity() {
+
+    const email = document.getElementById('fpEmail').value.trim().toLowerCase();
+    const phone = document.getElementById('fpPhone').value.trim();
+
+    let ok = true;
+
+    ok = validateField(
+        'fpEmail',
+        'fpEmailErr',
+        v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)
+    ) && ok;
+
+    ok = validateField(
+        'fpPhone',
+        'fpPhoneErr',
+        v => v.trim().length >= 7
+    ) && ok;
+
+    if (!ok) return;
+
+    const normalizePhone = p =>
+        (p || '')
+            .toString()
+            .replace(/[\s\-()]/g, '')
+            .replace(/^(\+?91)/, '');
+
+    const enteredPhone = normalizePhone(phone);
+
+    const { data, error } = await sb
+        .from('users')
+        .select('*')
+        .eq('email', email)
+        .single();
+
+    if (error || !data) {
+        showAlert(
+            'fpAlert1',
+            'error',
+            'No account found with that email.'
+        );
+        return;
+    }
+
+    if (normalizePhone(data.phone) !== enteredPhone) {
+        showAlert(
+            'fpAlert1',
+            'error',
+            'Phone number does not match.'
+        );
+        return;
+    }
+
+    fpVerifiedEmail = data.email;
+
+    document.getElementById('fpStep1').style.display = 'none';
+    document.getElementById('fpStep2').style.display = 'block';
+
+    setTimeout(() => {
+        document.getElementById('fpNewPassword').focus();
+    }, 100);
+}
+
+// STEP 2 - Reset Password
+async function handleResetPassword() {
+
+    if (!fpVerifiedEmail) {
+        document.getElementById('fpStep1').style.display = 'block';
+        document.getElementById('fpStep2').style.display = 'none';
+        return;
+    }
+
+    let ok = true;
+
+    ok = validateField(
+        'fpNewPassword',
+        'fpNewPassErr',
+        v => v.length >= 6
+    ) && ok;
+
+    ok = validateField(
+        'fpConfirmPassword',
+        'fpConfirmErr',
+        v => v === document.getElementById('fpNewPassword').value
+    ) && ok;
+
+    if (!ok) return;
+
+    const newPassword = document.getElementById('fpNewPassword').value;
+
+    const { error } = await sb
+        .from('users')
+        .update({
+            password: newPassword
+        })
+        .eq('email', fpVerifiedEmail);
+
+    if (error) {
+        showAlert(
+            'fpAlert2',
+            'error',
+            error.message
+        );
+        return;
+    }
+
+    showAlert(
+        'fpAlert2',
+        'success',
+        'Password updated successfully! You can now log in with your new password.'
+    );
+
+    setTimeout(() => {
+        closeForgotPassword();
+    }, 1800);
+}
     // ─── Enter key support ─────────────────────────────────────────────────────
     document.addEventListener('keydown', e => {
         if (e.key !== 'Enter') return;
