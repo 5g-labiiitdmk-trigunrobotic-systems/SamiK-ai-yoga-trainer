@@ -1011,30 +1011,40 @@ if (error) {
         ok = validateField('loginEmail', 'loginEmailErr', v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) && ok;
         ok = validateField('loginPassword', 'loginPassErr', v => v.length > 0) && ok;
         if (!ok) return;
-
-      const { data, error } = await sb
+const { data, error } = await sb
     .from('users')
     .select('*')
     .eq('email', email)
-    .eq('password', password)
-    .single();
+    .eq('password', password);
 
-if (error || !data) {
+console.log("EMAIL:", email);
+console.log("PASSWORD:", password);
+console.log("DATA:", data);
+console.log("ERROR:", error);
+
+if (error) {
+    showAlert('loginAlert', 'error', error.message);
+    return;
+}
+
+if (!data || data.length === 0) {
     showAlert('loginAlert', 'error', 'Invalid email or password. Please try again.');
     return;
 }
 
+const user = data[0];
+
 localStorage.setItem('currentUser', JSON.stringify({
-    email: data.email,
-    fullName: data.full_name
+    email: user.email,
+    fullName: user.full_name
 }));
 
-showAlert('loginAlert', 'success', `Welcome back, ${data.full_name.split(' ')[0]}! Loading…`);
+showAlert('loginAlert', 'success', `Welcome back, ${user.full_name.split(' ')[0]}! Loading…`);
 
 setTimeout(() => {
     const encoded = encodeURIComponent(JSON.stringify({
-        email: data.email,
-        fullName: data.full_name
+        email: user.email,
+        fullName: user.full_name
     }));
     window.location.href = 'index.html?user=' + encoded;
 }, 1200);
