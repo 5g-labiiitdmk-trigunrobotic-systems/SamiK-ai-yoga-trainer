@@ -947,7 +947,14 @@
         const gender   = document.getElementById('regGender').value;
         const level    = document.getElementById('regLevel').value;
         const city     = document.getElementById('regCity').value.trim();
-        const password = document.getElementById('regPassword').value;
+        const passElement = document.getElementById('regPassword');
+
+console.log("Password element:", passElement);
+console.log("Password value:", passElement.value);
+
+const password = passElement.value;
+
+alert("Password = " + password);
         console.log("REGISTER PASSWORD =", password);
 alert("Password = " + password);
 
