@@ -949,15 +949,6 @@
         const city     = document.getElementById('regCity').value.trim();
         const passElement = document.getElementById('regPassword');
 
-console.log("Password element:", passElement);
-console.log("Password value:", passElement.value);
-
-const password = passElement.value;
-
-alert("Password = " + password);
-        console.log("REGISTER PASSWORD =", password);
-alert("Password = " + password);
-
         let users = JSON.parse(localStorage.getItem('yogaUsers') || '[]');
         if (users.find(u => u.email.toLowerCase() === email)) {
             showAlert('registerAlert', 'error', 'An account with this email already exists.');
@@ -1012,52 +1003,73 @@ if (error) {
         }, 2500);
     }
 
-    // ─── LOGIN ──────────────────────────────────────────────────────────────────
-  async function handleLogin() {
-        const email    = document.getElementById('loginEmail').value.trim().toLowerCase();
-        const password = document.getElementById('loginPassword').value;
-        let ok = true;
-        ok = validateField('loginEmail', 'loginEmailErr', v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) && ok;
-        ok = validateField('loginPassword', 'loginPassErr', v => v.length > 0) && ok;
-        if (!ok) return;
-const { data, error } = await sb
-    .from('users')
-    .select('*')
-    .eq('email', email)
-    .eq('password', password);
+// ─── LOGIN ──────────────────────────────────────────────────────────────────
+async function handleLogin() {
 
-console.log("EMAIL:", email);
-console.log("PASSWORD:", password);
-console.log("DATA:", data);
-console.log("ERROR:", error);
+    const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+    const password = document.getElementById('loginPassword').value;
 
-if (error) {
-    showAlert('loginAlert', 'error', error.message);
-    return;
-}
+    let ok = true;
 
-if (!data || data.length === 0) {
-    showAlert('loginAlert', 'error', 'Invalid email or password. Please try again.');
-    return;
-}
+    ok = validateField(
+        'loginEmail',
+        'loginEmailErr',
+        v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)
+    ) && ok;
 
-const user = data[0];
+    ok = validateField(
+        'loginPassword',
+        'loginPassErr',
+        v => v.length > 0
+    ) && ok;
 
-localStorage.setItem('currentUser', JSON.stringify({
-    email: user.email,
-    fullName: user.full_name
-}));
+    if (!ok) return;
 
-showAlert('loginAlert', 'success', `Welcome back, ${user.full_name.split(' ')[0]}! Loading…`);
+    // Search by email only
+    const { data: user, error } = await sb
+        .from('users')
+        .select('*')
+        .eq('email', email)
+        .maybeSingle();
 
-setTimeout(() => {
-    const encoded = encodeURIComponent(JSON.stringify({
+    console.log("USER:", user);
+    console.log("ERROR:", error);
+
+    if (error) {
+        showAlert('loginAlert', 'error', error.message);
+        return;
+    }
+
+    if (!user) {
+        showAlert('loginAlert', 'error', 'Account not found.');
+        return;
+    }
+
+    if (user.password !== password) {
+        showAlert('loginAlert', 'error', 'Incorrect password.');
+        return;
+    }
+
+    localStorage.setItem('currentUser', JSON.stringify({
         email: user.email,
         fullName: user.full_name
     }));
-    window.location.href = 'index.html?user=' + encoded;
-}, 1200);
-  }
+
+    showAlert(
+        'loginAlert',
+        'success',
+        `Welcome back, ${user.full_name.split(' ')[0]}!`
+    );
+
+    setTimeout(() => {
+        const encoded = encodeURIComponent(JSON.stringify({
+            email: user.email,
+            fullName: user.full_name
+        }));
+
+        window.location.href = 'index.html?user=' + encoded;
+    }, 1000);
+}
   // ─── FORGOT / RESET PASSWORD ───────────────────────────────
 let fpVerifiedEmail = null;
 
