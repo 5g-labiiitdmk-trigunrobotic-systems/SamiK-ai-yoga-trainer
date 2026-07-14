@@ -948,9 +948,10 @@
         const gender   = document.getElementById('regGender').value;
         const level    = document.getElementById('regLevel').value;
         const city     = document.getElementById('regCity').value.trim();
+        const password = document.getElementById('regPassword').value;
     
       
-        const { data, error } = await supabase
+        const { data, error } = await sb
   .from('users')
   .insert([
     {
