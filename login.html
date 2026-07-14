@@ -950,7 +950,7 @@
         const city     = document.getElementById('regCity').value.trim();
     
       
-        const { data, error } = await sb
+        const { data, error } = await supabase
   .from('users')
   .insert([
     {
@@ -960,7 +960,8 @@
       age: age,
       gender: gender,
       level: level,
-      city: city
+      city: city,
+      password: password
     }
   ]);
 
