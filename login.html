@@ -949,7 +949,18 @@
         const level    = document.getElementById('regLevel').value;
         const city     = document.getElementById('regCity').value.trim();
         const password = document.getElementById('regPassword').value;
+console.log("Password:", password);
 
+console.log({
+    full_name: fullName,
+    email: email,
+    password: password,
+    phone: phone,
+    age: age,
+    gender: gender,
+    level: level,
+    city: city
+});
       
         const { data, error } = await sb
   .from('users')
