@@ -214,6 +214,7 @@
             margin-bottom: 28px;
         }
 
+        
         .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -949,20 +950,7 @@
         const city     = document.getElementById('regCity').value.trim();
         const password = document.getElementById('regPassword').value;
 
-        let users = JSON.parse(localStorage.getItem('yogaUsers') || '[]');
-        if (users.find(u => u.email.toLowerCase() === email)) {
-            showAlert('registerAlert', 'error', 'An account with this email already exists.');
-            return;
-        }
-
-        const newUser = {
-            id: Date.now().toString(),
-            fullName, email, phone, age, gender, level, city, password,
-            status: 'approved',
-            joinedDate: new Date().toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' }),
-            joinedTimestamp: Date.now()
-        };
-
+      
         const { data, error } = await sb
   .from('users')
   .insert([
