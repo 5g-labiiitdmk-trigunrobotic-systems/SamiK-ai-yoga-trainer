@@ -947,7 +947,7 @@
         const gender   = document.getElementById('regGender').value;
         const level    = document.getElementById('regLevel').value;
         const city     = document.getElementById('regCity').value.trim();
-        const passElement = document.getElementById('regPassword');
+        const passElement = document.getElementById('regPassword').value;
 
         let users = JSON.parse(localStorage.getItem('yogaUsers') || '[]');
         if (users.find(u => u.email.toLowerCase() === email)) {
