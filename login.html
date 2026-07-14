@@ -948,19 +948,7 @@
         const gender   = document.getElementById('regGender').value;
         const level    = document.getElementById('regLevel').value;
         const city     = document.getElementById('regCity').value.trim();
-        const password = document.getElementById('regPassword').value;
-console.log("Password:", password);
-
-console.log({
-    full_name: fullName,
-    email: email,
-    password: password,
-    phone: phone,
-    age: age,
-    gender: gender,
-    level: level,
-    city: city
-});
+    
       
         const { data, error } = await sb
   .from('users')
@@ -968,7 +956,6 @@ console.log({
     {
       full_name: fullName,
       email: email,
-      password: password,
       phone: phone,
       age: age,
       gender: gender,
@@ -1044,10 +1031,10 @@ async function handleLogin() {
         return;
     }
 
-    if (user.password !== password) {
-        showAlert('loginAlert', 'error', 'Incorrect password.');
-        return;
-    }
+if (user.password !== password) {
+    showAlert('loginAlert', 'error', 'Incorrect password.');
+    return;
+}
 
     localStorage.setItem('currentUser', JSON.stringify({
         email: user.email,
