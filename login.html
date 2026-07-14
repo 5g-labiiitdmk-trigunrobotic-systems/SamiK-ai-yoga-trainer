@@ -952,7 +952,17 @@
 
 console.log("Password value:", password);
 alert("Password value: " + password);
-    
+
+        console.log({
+  full_name: fullName,
+  email: email,
+  phone: phone,
+  age: age,
+  gender: gender,
+  level: level,
+  city: city,
+  password: password
+});
       
         const { data, error } = await sb
   .from('users')
