@@ -949,7 +949,9 @@
         const level    = document.getElementById('regLevel').value;
         const city     = document.getElementById('regCity').value.trim();
         const password = document.getElementById('regPassword').value;
-        console.log("Password entered:", password);
+
+console.log("Password value:", password);
+alert("Password value: " + password);
     
       
         const { data, error } = await sb
